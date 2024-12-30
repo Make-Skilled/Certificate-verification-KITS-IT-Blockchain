@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signout</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .signout-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .signout-container h1 {
+            font-size: 2em;
+            color: #333;
+        }
+
+        .signout-container p {
+            color: #555;
+        }
+
+        .btn-signout {
+            background-color: #F9A826;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-signout:hover {
+            background-color: #f3a202;
+        }
+    </style>
+</head>
+<body>
+    <!-- Signout Container -->
+    <div class="signout-container">
+        <h1>You have been signed out</h1>
+        <p>Thank you for visiting! You have successfully logged out.</p>
+        <button class="btn-signout" onclick="signOut()">Go to Home</button>
+    </div>
+
+    <script>
+        function signOut() {
+            // Simulate logging out by clearing any session data
+            // In a real app, you might clear sessionStorage, cookies, or make an API call to log out the user
+            sessionStorage.clear();  // Clears all session storage data (if any)
+            localStorage.clear();    // Clears local storage data (if any)
+
+            // Redirect to the homepage after sign out
+            window.location.href = "index.html";  // You can replace this with your actual homepage URL
+        }
+    </script>
+</body>
+</html>

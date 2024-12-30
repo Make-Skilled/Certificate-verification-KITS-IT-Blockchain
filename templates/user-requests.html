@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Requests</title>
+  <style>
+    /* Reset default margin and padding */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      padding-top: 60px; /* Space for navbar */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* Navbar styling */
+    nav {
+      width: 100%;
+      background-color: #333;
+      padding: 10px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+    }
+
+    nav ul li {
+      margin: 0 20px;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 1.2rem;
+      padding: 10px 20px;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    nav ul li a:hover {
+      background-color: #ff8000; /* Orange color on hover */
+      border-radius: 4px;
+    }
+
+    /* Container for the user requests page */
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: black;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      color: #555;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #ff8000;
+      color: white;
+      font-size: 1.1rem;
+    }
+
+    td {
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: transparent;
+      color: #333;
+      border: 1px solid #ccc;
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out, transform 0.2s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      background-color: #f1f1f1;
+      transform: scale(1.05);
+    }
+
+    .options {
+      margin-top: 30px;
+    }
+
+    .options button {
+      margin-right: 15px;
+      background-color: #007bff;
+    }
+
+    .options button:hover {
+      background-color: #0056b3;
+    }
+
+    select {
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      width: 80%;
+      max-width: 600px;
+      text-align: left;
+    }
+
+    .modal button {
+      background-color: #28a745;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .modal button:hover {
+      background-color: #218838;
+    }
+
+    .modal-header {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav>
+    <ul>
+      <li><a href="index.html">HOME</a></li>
+      <li><a href="index.html">SERVICES</a></li>
+      <li><a href="index.html">PRICING</a></li>
+      <li><a href="index.html">TEAM</a></li>
+      <li><a href="index.html">RATING</a></li>
+      <li><a href="index.html">CONTACT US</a></li>
+      <li><a href="logout.html">LOGOUT</a></li>
+      <li><a href="signup.html">SIGNUP</a></li>
+      
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h1>User Requests</h1>
+    <p>View and handle requests submitted by users for certificate verification. Below is the list of current requests.</p>
+
+    <!-- Filter by Status -->
+    <div class="options">
+      <label for="statusFilter">Filter by Status:</label>
+      <select id="statusFilter" onchange="filterRequests()">
+        <option value="all">All Requests</option>
+        <option value="pending">Pending</option>
+        <option value="verified">Verified</option>
+      </select>
+    </div>
+
+    <!-- Requests Table -->
+    <table id="requestsTable">
+      <thead>
+        <tr>
+          <th>Request ID</th>
+          <th>User Name</th>
+          <th>Certificate ID</th>
+          <th>Request Date</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="pending">
+          <td>101</td>
+          <td>John Doe</td>
+          <td>CERT-2023-01</td>
+          <td>2023-12-01</td>
+          <td>Pending</td>
+          <td><button onclick="viewRequest(101)">View</button><button onclick="verifyRequest(101)">Verify</button></td>
+        </tr>
+        <tr class="verified">
+          <td>102</td>
+          <td>Jane Smith</td>
+          <td>CERT-2023-02</td>
+          <td>2023-12-02</td>
+          <td>Verified</td>
+          <td><button onclick="viewRequest(102)">View</button><button onclick="verifyRequest(102)" disabled>Verified</button></td>
+        </tr>
+        <tr class="pending">
+          <td>103</td>
+          <td>Mark Johnson</td>
+          <td>CERT-2023-03</td>
+          <td>2023-12-03</td>
+          <td>Pending</td>
+          <td><button onclick="viewRequest(103)">View</button><button onclick="verifyRequest(103)">Verify</button></td>
+        </tr>
+        <tr class="verified">
+          <td>104</td>
+          <td>Alice Brown</td>
+          <td>CERT-2023-04</td>
+          <td>2023-12-04</td>
+          <td>Verified</td>
+          <td><button onclick="viewRequest(104)">View</button><button onclick="verifyRequest(104)" disabled>Verified</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal for viewing request details -->
+  <div id="viewModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Request Details</h2>
+      </div>
+      <p id="requestDetails">Details of the request will be displayed here...</p>
+      <button onclick="closeModal()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function filterRequests() {
+      var filter = document.getElementById("statusFilter").value;
+      var rows = document.querySelectorAll("#requestsTable tbody tr");
+
+      rows.forEach(function(row) {
+        if (filter === "all") {
+          row.style.display = "";
+        } else if (row.classList.contains(filter)) {
+          row.style.display = "";
+        } else {
+          row.style.display = "none";
+        }
+      });
+    }
+
+    function viewRequest(requestID) {
+      var details = `Details of Request ID: ${requestID}`;
+      document.getElementById("requestDetails").innerText = details;
+
+      var modal = document.getElementById("viewModal");
+      modal.style.display = "flex"; // Show the modal
+    }
+
+    function closeModal() {
+      var modal = document.getElementById("viewModal");
+      modal.style.display = "none"; // Close the modal
+    }
+
+    function verifyRequest(requestID) {
+      var row = document.querySelector(`tr td:first-child:contains(${requestID})`).parentElement;
+      var statusCell = row.cells[4];
+
+      if (statusCell.innerText === "Pending") {
+        // Change the row to 'Verified' when the request is verified
+        row.classList.remove("pending");
+        row.classList.add("verified");
+        statusCell.innerText = "Verified"; // Update the status to Verified
+        var actionCell = row.cells[5];
+        actionCell.innerHTML = '<button onclick="viewRequest(' + requestID + ')">View</button><button disabled>Verified</button>'; // Disable the button
+      }
+    }
+  </script>
+
+</body>
+</html>

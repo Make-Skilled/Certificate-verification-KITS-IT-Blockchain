@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Track Certificate</title>
+  <style>
+    /* General Styling */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Navbar Styling */
+    .main-nav {
+      background-color: #333;
+      padding: 15px 20px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .main-nav ul {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+
+    .main-nav li {
+      margin: 0 15px;
+    }
+
+    .main-nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1em;
+      transition: color 0.3s ease;
+    }
+
+    .main-nav a:hover {
+      color: #F9A826;
+    }
+
+    header {
+      background-color: #F9A826;
+      padding: 15px;
+      text-align: center;
+      color: white;
+      font-size: 1.5em;
+      margin-top: 60px; /* Adjusted for navbar */
+    }
+
+    .track-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin-top: 30px;
+      padding: 20px;
+    }
+
+    .track-box {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      width: 80%;
+      max-width: 800px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .track-box h3 {
+      font-size: 1.3em;
+      color: #333;
+    }
+
+    .track-box input {
+      padding: 10px;
+      margin-top: 20px;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      font-size: 1em;
+    }
+
+    .track-box button {
+      background-color: #F9A826;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .track-box button:hover {
+      background-color: #f3a202;
+    }
+
+    .status-box {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f4f4f4;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 800px;
+    }
+
+    .status-box p {
+      font-size: 1.1em;
+      color: #333;
+    }
+
+    footer {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+
+    /* Media Query for Mobile */
+    @media (max-width: 768px) {
+      .track-box {
+        width: 90%;
+      }
+
+      .status-box {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">HOME</a></li>
+      <li><a href="index.html">SERVICES</a></li>
+      <li><a href="index.html">PRICING</a></li>
+      <li><a href="index.html">TEAM</a></li>
+      <li><a href="index.html">RATING</a></li>
+      <li><a href="index.html">CONTACT US</a></li>
+      <li><a href="logout.html">LOGOUT</a></li>
+      <li><a href="signup.html">SIGNUP</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    Track Your Certificate
+  </header>
+
+  <div class="track-container">
+    <!-- Track Certificate Box -->
+    <div class="track-box">
+      <h3>Enter Your Certificate ID</h3>
+      <p>To track the status of your certificate, please enter the certificate ID below and click "Track."</p>
+
+      <input type="text" id="certificateId" placeholder="Enter Certificate ID">
+
+      <button onclick="trackCertificate()">Track Certificate</button>
+    </div>
+
+    <!-- Status Box -->
+    <div id="statusBox" class="status-box" style="display: none;">
+      <h3>Certificate Status</h3>
+      <p><strong>Status:</strong> <span id="status"></span></p>
+      <p><strong>Verified By:</strong> <span id="verifiedBy"></span></p>
+      <p><strong>Verification Date:</strong> <span id="verificationDate"></span></p>
+      <p><strong>Comments:</strong> <span id="comments"></span></p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2024 Certificate Verification System | All Rights Reserved
+  </footer>
+
+  <script>
+    function trackCertificate() {
+      var certificateId = document.getElementById('certificateId').value;
+
+      if (!certificateId) {
+        alert('Please enter a certificate ID to track.');
+        return;
+      }
+
+      // Sample data for demonstration purposes
+      var sampleData = {
+        "12345": {
+          "status": "Verified",
+          "verifiedBy": "University of XYZ",
+          "verificationDate": "2024-12-01",
+          "comments": "Successfully verified by the issuing authority."
+        },
+        "67890": {
+          "status": "Verification Pending",
+          "verifiedBy": "N/A",
+          "verificationDate": "N/A",
+          "comments": "Certificate is pending verification."
+        }
+      };
+
+      // Check if the certificate ID exists in the sample data
+      var certificate = sampleData[certificateId];
+
+      if (certificate) {
+        // Display the status
+        document.getElementById('status').textContent = certificate.status;
+        document.getElementById('verifiedBy').textContent = certificate.verifiedBy;
+        document.getElementById('verificationDate').textContent = certificate.verificationDate;
+        document.getElementById('comments').textContent = certificate.comments;
+
+        // Show the status box
+        document.getElementById('statusBox').style.display = 'block';
+      } else {
+        alert('Certificate ID not found.');
+      }
+    }
+  </script>
+</body>
+</html>

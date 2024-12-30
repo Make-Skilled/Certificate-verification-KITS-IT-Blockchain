@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Certificate</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f4f4f9;
+      background-image: url('img/certg.png'); /* Default Background Image */
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      transition: all 0.5s ease-in-out;
+    }
+
+    /* Navbar Styles */
+    .main-nav {
+      background-color: #333;
+      padding: 15px 20px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .main-nav ul {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+
+    .main-nav li {
+      margin: 0 15px;
+    }
+
+    .main-nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1em;
+      transition: color 0.3s ease;
+    }
+
+    .main-nav a:hover {
+      color: #F9A826;
+    }
+
+    /* Common Styles */
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+      margin-top: 100px; /* Adjust for navbar height */
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 1rem;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+      transform: scale(1.05);
+    }
+
+    /* Vibrant Gradient Styles */
+    body.vibrant {
+      background-image: url('vibrant-bg.jpg'); /* Replace with your vibrant background image */
+      color: #fff;
+    }
+
+    .vibrant .container {
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+    }
+
+    .vibrant h1 {
+      color: #6a11cb;
+    }
+
+    .vibrant button {
+      background: linear-gradient(135deg, #2575fc, #6a11cb);
+      color: white;
+    }
+
+    /* Minimalist Style */
+    body.minimalist {
+      background-image: url('minimalist-bg.jpg'); /* Replace with your minimalist background image */
+    }
+
+    .minimalist .container {
+      border-radius: 16px;
+    }
+
+    /* Button Group */
+    .button-group {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .button-group button {
+      margin: 0 5px;
+      background-color: #ff8000;
+      color: white;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+    }
+
+    .button-group button:hover {
+      background-color: #e67300;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">HOME</a></li>
+      <li><a href="index.html">SERVICES</a></li>
+      <li><a href="index.html">PRICING</a></li>
+      <li><a href="index.html">TEAM</a></li>
+      <li><a href="index.html">RATING</a></li>
+      <li><a href="index.html">CONTACT US</a></li>
+     
+      <li><a href="logout.html">LOGOUT</a></li>
+      <li><a href="signup.html">SIGNUP</a></li>
+    </ul>
+  </nav>
+
+  <!-- Verification Form -->
+  <div class="container">
+    <h1>Verify Your Certificate</h1>
+    <form>
+      <label for="certificateID">Enter Certificate ID:</label>
+      <input type="text" id="certificateID" name="certificateID" required>
+      <button type="submit">Verify</button>
+    </form>
+  </div>
+
+  <script>
+    function setStyle(style) {
+      document.body.className = ''; // Reset any existing styles
+      if (style !== 'default') {
+        document.body.classList.add(style);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback Form</title>
+  <style>
+    /* Reset default margin and padding */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center; /* Horizontally center the form */
+      align-items: center; /* Vertically center the form */
+      min-height: 100vh; /* Full viewport height */
+      background: #f4f4f9;
+      background-image: url('img/hello2.jpg'); /* Background Image */
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      overflow: auto; /* Allow scrolling if needed */
+      flex-direction: column;
+      padding: 20px; /* Padding around the page */
+    }
+
+    /* Navbar Styles */
+    .main-nav {
+      background-color: #333;
+      padding: 15px 20px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .main-nav ul {
+      list-style: none;
+      display: flex;
+      margin: 0;
+      padding: 0;
+    }
+
+    .main-nav li {
+      margin: 0 15px;
+    }
+
+    .main-nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1em;
+      transition: color 0.3s ease;
+    }
+
+    .main-nav a:hover {
+      color: #F9A826;
+    }
+
+    /* Common Styles */
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      text-align: center;
+      width: 100%;
+      max-width: 800px; /* Make container wider for laptop screens */
+      box-sizing: border-box;
+      margin-top: 80px; /* Adjust for navbar height */
+    }
+
+    h1 {
+      font-size: 2rem; /* Decreased font size */
+      color: #ff8000; /* Orange color for the heading */
+      margin-bottom: 20px; /* Add space between header and form */
+      text-align: center; /* Center align heading */
+      margin-top: 20px; /* Ensure there's space at the top */
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem; /* Smaller font size for labels */
+      margin-bottom: 6px;
+      color: #555;
+      text-align: left;
+    }
+
+    textarea, input[type="text"], input[type="email"], input[type="tel"], select {
+      width: 100%;
+      padding: 8px; /* Decreased padding */
+      border: 1px solid #ff8000; /* Orange border for inputs */
+      border-radius: 4px;
+      margin-bottom: 12px; /* Reduced margin */
+      font-size: 0.9rem; /* Smaller font size */
+      box-sizing: border-box;
+      transition: border-color 0.3s;
+    }
+
+    textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus, select:focus {
+      border-color: #e67300; /* Darker orange on focus */
+      outline: none;
+    }
+
+    button {
+      background-color: #ff8000; /* Orange button color */
+      color: white;
+      border: none;
+      padding: 10px 18px; /* Smaller padding */
+      font-size: 0.9rem; /* Smaller font size */
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out, transform 0.2s;
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    button:hover {
+      background-color: #e67300; /* Slightly darker orange on hover */
+      transform: scale(1.05);
+    }
+
+    .button-group {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+
+    .button-group button {
+      margin: 0 5px;
+      background-color: #007bff;
+      color: white;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+    }
+
+    .button-group button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Star Rating Style */
+    .rating {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+
+    .rating input[type="radio"] {
+      display: none; /* Hide radio buttons */
+    }
+
+    .rating label {
+      font-size: 1.5rem; /* Increase the size of stars */
+      color: #ddd; /* Gray color for unselected stars */
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+
+    /* Change the color of stars when checked */
+    .rating input[type="radio"]:checked ~ label {
+      color: #e67300; /* Darker orange when selected */
+    }
+
+    /* Hover effect for stars */
+    .rating label:hover,
+    .rating label:hover ~ label {
+      color: #e67300; /* Change color on hover */
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">HOME</a></li>
+      <li><a href="index.html">SERVICES</a></li>
+      <li><a href="index.html">PRICING</a></li>
+      <li><a href="index.html">TEAM</a></li>
+      <li><a href="index.html">RATING</a></li>
+      <li><a href="index.html">CONTACT US</a></li>
+      <li><a href="logout.html">LOGOUT</a></li>
+      <li><a href="signup.html">SIGNUP</a></li>
+    </ul>
+  </nav>
+
+  <!-- Feedback Form -->
+  <div class="container">
+    <h1>Provide Feedback</h1>
+    <form>
+      <!-- Feedback Textarea -->
+      <label for="feedback">Your Feedback:</label>
+      <textarea id="feedback" name="feedback" rows="4" required></textarea><br>
+
+      <!-- Rating System -->
+      <label for="rating">Rate your experience:</label>
+      <div class="rating">
+        <input type="radio" id="star1" name="rating" value="5"><label for="star1">★</label>
+        <input type="radio" id="star2" name="rating" value="4"><label for="star2">★</label>
+        <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+        <input type="radio" id="star4" name="rating" value="2"><label for="star4">★</label>
+        <input type="radio" id="star5" name="rating" value="1"><label for="star5">★</label>
+      </div><br>
+
+      <!-- Dropdown for Satisfaction -->
+      <label for="service">How satisfied are you with our service?</label>
+      <select id="service" name="service">
+        <option value="excellent">Excellent</option>
+        <option value="good">Good</option>
+        <option value="average">Average</option>
+        <option value="poor">Poor</option>
+      </select><br>
+
+      <!-- File Upload -->
+      <label for="fileUpload">Attach any relevant file:</label>
+      <input type="file" id="fileUpload" name="fileUpload" accept=".jpg, .png, .pdf"><br><br>
+
+      <!-- Email Input -->
+      <label for="email">Your Email:</label>
+      <input type="email" id="email" name="email" required><br><br>
+
+      <!-- Contact Number Input -->
+      <label for="contact">Your Contact Number:</label>
+      <input type="tel" id="contact" name="contact" pattern="[0-9]{10}" required><br><br>
+
+      <!-- Submit Button -->
+      <button type="submit">Submit Feedback</button>
+    </form>
+  </div>
+
+  <script>
+    function setStyle(style) {
+      document.body.className = ''; // Reset any existing styles
+      if (style !== 'default') {
+        document.body.classList.add(style);
+      }
+    }
+
+    // Prevent form submission for demonstration
+    document.querySelector('form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('Thank you for your feedback!');
+    });
+  </script>
+</body>
+</html>

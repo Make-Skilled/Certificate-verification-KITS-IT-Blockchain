@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Certificates</title>
+  <style>
+    /* Reset default margin and padding */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    /* Navbar Styling */
+    .main-nav {
+      background-color: #333;
+      padding: 10px 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    .main-nav ul {
+      list-style: none;
+      padding: 0;
+      display: inline-flex;
+    }
+
+    .main-nav ul li {
+      margin-right: 20px;
+    }
+
+    .main-nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      font-size: 1.2rem;
+      transition: color 0.3s;
+    }
+
+    .main-nav ul li a:hover {
+      color: #ff8000;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 40px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      color: #ff8000; /* Orange color */
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 30px;
+      color: #555;
+    }
+
+    label {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #333;
+      display: block;
+      text-align: left;
+    }
+
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #ff8000; /* Orange color */
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease-in-out, transform 0.2s, box-shadow 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #e67e22; /* Darker orange color */
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ff8000;
+    }
+
+    .status.verified {
+      color: green;
+    }
+
+    .status.not-verified {
+      color: red;
+    }
+
+    .options {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .options label {
+      font-size: 1rem;
+    }
+
+    .options input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">HOME</a></li>
+      <li><a href="services.html">SERVICES</a></li>
+      <li><a href="pricing.html">PRICING</a></li>
+      <li><a href="team.html">TEAM</a></li>
+      <li><a href="rating.html">RATING</a></li>
+      <li><a href="contact.html">CONTACT US</a></li>
+      <li><a href="logout.html">LOGOUT</a></li>
+      <li><a href="signup.html">SIGNUP</a></li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h1>Manage Certificates</h1>
+    <p>Here, you can verify uploaded certificates and view their status.</p>
+
+    <form id="certificateForm">
+      <div>
+        <label for="certificateID">Certificate ID:</label>
+        <input type="text" id="certificateID" name="certificateID" placeholder="Enter Certificate ID" required><br><br>
+      </div>
+
+      <div>
+        <label for="certificateUpload">Upload Certificate:</label>
+        <input type="file" id="certificateUpload" name="certificateUpload" accept=".pdf, .jpg, .jpeg, .png" required><br><br>
+      </div>
+
+      <div class="options">
+        <label for="notifyUser">Notify User after Verification</label>
+        <input type="checkbox" id="notifyUser" name="notifyUser">
+      </div>
+
+      <button type="submit">Verify Certificate</button>
+    </form>
+
+    <div id="statusContainer" class="status">
+      <!-- Verification status will be shown here -->
+    </div>
+  </div>
+
+  <script>
+    // Handle form submission and certificate verification
+    document.getElementById("certificateForm").addEventListener("submit", function(event) {
+      event.preventDefault(); // Prevent form submission
+
+      const certificateID = document.getElementById("certificateID").value;
+      const certificateFile = document.getElementById("certificateUpload").files[0];
+      const notifyUser = document.getElementById("notifyUser").checked;
+
+      // Simulate certificate verification process
+      const isVerified = Math.random() > 0.5; // Randomly simulate verified or not
+
+      // Update status based on the verification result
+      const statusContainer = document.getElementById("statusContainer");
+      if (isVerified) {
+        statusContainer.innerText = `Certificate ID ${certificateID} has been successfully verified.`;
+        statusContainer.className = 'status verified';
+      } else {
+        statusContainer.innerText = `Certificate ID ${certificateID} could not be verified.`;
+        statusContainer.className = 'status not-verified';
+      }
+
+      // Optional: Notify user if the checkbox is checked
+      if (notifyUser) {
+        alert(`The user will be notified about the verification status of Certificate ID ${certificateID}.`);
+      }
+    });
+  </script>
+
+
+</body>
+</html>

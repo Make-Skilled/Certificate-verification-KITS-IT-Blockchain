@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <style>
+    /* General Styling */
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ff6f61, #f9a826);
+      margin: 0;
+      padding: 0;
+      color: #fff;
+    }
+
+    /* Navbar Styling */
+    .main-nav {
+      background-color: #333;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    .main-nav ul {
+      list-style: none;
+      padding: 0;
+      display: inline-flex;
+    }
+
+    .main-nav ul li {
+      margin-right: 20px;
+    }
+
+    .main-nav ul li a {
+      text-decoration: none;
+      color: #fff;
+      font-size: 1.2rem;
+      transition: color 0.3s;
+    }
+
+    .main-nav ul li a:hover {
+      color: #f9a826;
+    }
+
+    /* Header */
+    header {
+      background-color: #fff; /* Change background to white */
+      color: #333; /* Change text color to dark for contrast */
+      padding: 20px;
+      text-align: center;
+      font-size: 2em;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-bottom: 2px solid #f9a826;
+      animation: fadeIn 1.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    /* Service Container */
+    .service-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* Display 4 services per row */
+      gap: 20px;
+      margin-top: 40px;
+      padding: 0 20px;
+    }
+
+    /* Service Box */
+    .service-box {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+      color: #333;
+      height: 240px; /* Set a fixed height to avoid overflow */
+    }
+
+    .service-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      background-color: #f3f3f3;
+      cursor: pointer;
+    }
+
+    .service-box h3 {
+      font-size: 1.3em;
+      color: #f9a826;
+      margin-bottom: 10px;
+    }
+
+    .service-box p {
+      font-size: 1em;
+      color: #666;
+      margin-top: 10px;
+      height: 50px;
+      overflow: hidden;
+    }
+
+    .service-box button {
+      background-color: #f9a826;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .service-box button:hover {
+      background-color: #f3a202;
+      transform: scale(1.05);
+    }
+
+    /* Footer */
+    footer {
+      background-color: #333;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+
+    footer a {
+      color: #f9a826;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Icons */
+    .service-box i {
+      font-size: 2.5em;
+      color: #f9a826;
+      margin-bottom: 15px;
+    }
+  </style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="main-nav">
+    <ul>
+      <li><a href="index.html">HOME</a></li>
+      <li><a href="index.html">SERVICES</a></li>
+      <li><a href="index.html">PRICING</a></li>
+      <li><a href="index.html">TEAM</a></li>
+      <li><a href="index.html">RATING</a></li>
+      <li><a href="index.html">CONTACT US</a></li>
+      
+      <li><a href="logout.html">LOGOUT</a></li>
+      <li><a href="signup.html">SIGNUP</a></li>
+    </ul>
+  </nav>
+
+  <header>
+    Welcome, Admin! Manage the System
+  </header>
+
+  <div class="service-container">
+    <!-- Service 1: Manage Certificates -->
+    <div class="service-box">
+      <i class="fas fa-certificate"></i>
+      <h3>Manage Certificates</h3>
+      <p>Verify and validate uploaded certificates to ensure authenticity.</p>
+      <button onclick="window.location.href='manage-certificates.html'">Manage Certificates</button>
+    </div>
+
+    <!-- Service 2: View User Requests -->
+    <div class="service-box">
+      <i class="fas fa-users"></i>
+      <h3>View User Requests</h3>
+      <p>Handle certificate verification requests submitted by users.</p>
+      <button onclick="window.location.href='user-requests.html'">View Requests</button>
+    </div>
+
+    <!-- Service 3: Handle Feedback -->
+    <div class="service-box">
+      <i class="fas fa-comments"></i>
+      <h3>Feedback Management</h3>
+      <p>Review feedback provided by users to improve the system.</p>
+      <button onclick="window.location.href='feedback-management.html'">Manage Feedback</button>
+    </div>
+
+    <!-- Service 4: Blockchain Maintenance -->
+    <div class="service-box">
+      <i class="fas fa-cogs"></i>
+      <h3>Blockchain Maintenance</h3>
+      <p>Oversee blockchain operations and ensure data integrity.</p>
+      <button onclick="window.location.href='blockchain-maintenance.html'">Maintain Blockchain</button>
+    </div>
+
+
+    <!-- Service 6: Certificate History -->
+    <div class="service-box">
+      <i class="fas fa-history"></i>
+      <h3>Certificate History</h3>
+      <p>View the history of certificates issued and their verification status.</p>
+      <button onclick="window.location.href='certificate-history.html'">View History</button>
+    </div>
+
+    <!-- Service 7: Track Certificates -->
+    <div class="service-box">
+      <i class="fas fa-search"></i>
+      <h3>Track Certificates</h3>
+      <p>Track the real-time status of certificates and their verification.</p>
+      <button onclick="window.location.href='track-certificate.html'">Track Now</button>
+    </div>
+
+    <!-- Service 8: List of Certificates -->
+    <div class="service-box">
+      <i class="fas fa-list"></i>
+      <h3>List of Certificates</h3>
+      <p>View and manage all certificates uploaded to the system.</p>
+      <button onclick="window.location.href='list-certificates.html'">View Certificates</button>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2024 Certificate Verification System | <a href="#">SONY</a>
+  </footer>
+
+</body>
+</html>
