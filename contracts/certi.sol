@@ -6,7 +6,7 @@ contract certi {
     struct User {
         string fullName;
         string email;
-        string password; // In practice, use a hash of the password
+        string password; // Store hashed password
         string username;
     }
 
@@ -15,13 +15,15 @@ contract certi {
 
     // Mapping to ensure unique usernames
     mapping(string => bool) private usernames;
-
-    // Event to log the addition of a new user
-    event UserAdded(address indexed userAddress, string fullName, string email, string username);
-
+    
     // Function to add a new user
-    function addUser(string memory fullName, string memory email, string memory password, string memory username) public {
-        // Ensure the email, fullName, password, and username are not empty
+    function addUser(
+        string memory fullName, 
+        string memory email, 
+        string memory password, 
+        string memory username
+    ) public {
+        // Ensure the fullName, email, password, and username are not empty
         require(bytes(fullName).length > 0, "Full name is required.");
         require(bytes(email).length > 0, "Email is required.");
         require(bytes(password).length > 0, "Password is required.");
@@ -39,18 +41,16 @@ contract certi {
         // Mark the username as used
         usernames[username] = true;
 
-        // Emit an event to log the addition of the new user
-        emit UserAdded(msg.sender, fullName, email, username);
     }
 
     // Function to fetch user details
     function getUser(address userAddress)
         public
         view
-        returns (string memory fullName, string memory email, string memory username)
+        returns (string memory fullName, string memory email, string memory username, string memory password)
     {
         User memory user = users[userAddress];
         require(bytes(user.email).length > 0, "User not found.");
-        return (user.fullName, user.email, user.username);
+        return (user.fullName, user.email, user.username, user.password);
     }
 }
