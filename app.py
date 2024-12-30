@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request, jsonify, session
-import bcrypt
+from werkzeug.utils import secure_filename
 from web3 import Web3, HTTPProvider
+import bcrypt
+import hashlib
 import json
+import os
 
 # Blockchain connection function
 def connect_with_blockchain(addr):
@@ -25,7 +28,16 @@ def connect_with_blockchain(addr):
 
 # Flask app setup
 app = Flask(__name__)
-app.secret_key = 'certificate'
+app.secret_key = 'certificate'\
+    
+# Configuration
+STATIC_FOLDER = 'static'
+UPLOAD_FOLDER = os.path.join(STATIC_FOLDER, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Ensure the uploads directory exists
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 @app.route('/')
 def home():
@@ -34,6 +46,10 @@ def home():
 @app.route('/login')
 def login():
     return render_template('login.html')
+
+@app.route('/upload_certificate')
+def uploadcerti():
+    return render_template('upload-certificate.html')
 
 @app.route('/signup')
 def signup():
@@ -71,7 +87,7 @@ def register_user():
             web3.eth.wait_for_transaction_receipt(tx_hash)
         except Exception as blockchain_error:
             print(f"Blockchain error during registration: {blockchain_error}")
-            return render_template('signup.html', error="Blockchain interaction failed"), 500
+            return render_template('signup.html', error="Email or username already exists"), 500
 
         # If successful, return a success message
         return render_template('signup.html', message="User registration successful"), 201
@@ -110,6 +126,36 @@ def login_user():
         print(f"Error during login: {e}")
         return render_template('login.html', message="An internal error occurred"), 500
 
+@app.route('/upload_certificate', methods=['POST'])
+def upload_image():
+    try:
+        # Check if the 'imageFile' field is in the request
+        if 'imageFile' not in request.files:
+            return render_template('upload-certificate.html',message= 'No file part in the request'), 400
+        
+        file = request.files['imageFile']
+        
+          # Generate hash for the file content
+        file_content = file.read()
+        file_hash = hashlib.sha256(file_content).hexdigest()
+        print(file_hash)
+        
+        # Check if the file has a name
+        if file.filename == '':
+            return render_template('upload-certificate',message= 'No selected file'), 400
 
+        # Secure the filename and save the file to the uploads folder inside static
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+
+        # Return the file path for confirmation
+        return render_template('upload-certificate.html',
+            message= 'certificate uploaded successfully',
+        ), 200
+
+    except Exception as e:
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+    
 if __name__ == '__main__':
     app.run(debug=True, port=9001)

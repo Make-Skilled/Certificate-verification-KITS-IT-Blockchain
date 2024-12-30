@@ -173,20 +173,13 @@
 
   <div class="container">
     <h1>Upload Your Certificate</h1>
-    <form>
+    <center><p>{{message}}</p></center>
+    <form action='/upload_certificate' method='post' enctype='multipart/form-data'>
       <label for="certificateFile">Choose your certificate file:</label>
-      <input type="file" id="certificateFile" name="certificateFile" required>
+      <input type="file" id="certificateFile" name="imageFile" accept=".pdf" required>
       <button type="submit">Upload</button>
     </form>
   </div>
 
-  <script>
-    function setStyle(style) {
-      document.body.className = ''; // Reset any existing styles
-      if (style !== 'default') {
-        document.body.classList.add(style);
-      }
-    }
-  </script>
 </body>
 </html>
