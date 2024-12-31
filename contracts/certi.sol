@@ -10,12 +10,22 @@ contract certi {
         string username;
     }
 
+        // Struct to represent a certificate
+    struct Certificate {
+        address owner;
+        string hash; // Unique hash for the certificate
+        string filePath; // File path for the certificate
+    }
+
     // Mapping to store users by their Ethereum address
     mapping(address => User) private users;
 
     // Mapping to ensure unique usernames
     mapping(string => bool) private usernames;
-    
+
+    // Mapping to store certificates by their hash
+    mapping(string => Certificate) private certificates;
+
     // Function to add a new user
     function addUser(
         string memory fullName, 
@@ -52,5 +62,28 @@ contract certi {
         User memory user = users[userAddress];
         require(bytes(user.email).length > 0, "User not found.");
         return (user.fullName, user.email, user.username, user.password);
+    }
+        // Function to add a certificate
+    function addCertificate(string memory hash, string memory filePath) public {
+        // Ensure the hash and filePath are not empty
+        require(bytes(hash).length > 0, "Certificate hash is required.");
+        require(bytes(filePath).length > 0, "File path is required.");
+
+        // Ensure the certificate hash is unique
+        require(bytes(certificates[hash].hash).length == 0, "Certificate already exists.");
+
+        // Add the certificate to the mapping
+        certificates[hash] = Certificate(msg.sender, hash, filePath);
+    }
+
+    // Function to get certificate details
+    function getCertificate(string memory hash)
+        public
+        view
+        returns (address owner, string memory filePath)
+    {
+        Certificate memory certificate = certificates[hash];
+        require(bytes(certificate.hash).length > 0, "Certificate not found.");
+        return (certificate.owner, certificate.filePath);
     }
 }

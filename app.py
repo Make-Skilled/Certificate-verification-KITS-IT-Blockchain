@@ -118,7 +118,8 @@ def login_user():
         session['user'] = {
             'full_name': fullname,
             'email': email,
-            'username': username
+            'username': username,
+            'address':user_address
         }
         return render_template('user-homepage.html'), 200
 
@@ -131,31 +132,50 @@ def upload_image():
     try:
         # Check if the 'imageFile' field is in the request
         if 'imageFile' not in request.files:
-            return render_template('upload-certificate.html',message= 'No file part in the request'), 400
-        
+            return render_template('upload-certificate.html', message='No file part in the request'), 400
+
         file = request.files['imageFile']
-        
-          # Generate hash for the file content
+
+        # Generate hash for the file content
         file_content = file.read()
         file_hash = hashlib.sha256(file_content).hexdigest()
-        print(file_hash)
-        
+        print(f"File hash: {file_hash}")
+
         # Check if the file has a name
         if file.filename == '':
-            return render_template('upload-certificate',message= 'No selected file'), 400
+            return render_template('upload-certificate.html', message='No selected file'), 400
 
         # Secure the filename and save the file to the uploads folder inside static
         filename = secure_filename(file.filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+
+        # Save the file to the specified location
+        file.seek(0)  # Reset the file pointer to save the file after reading its content
         file.save(file_path)
+        
+        user_address=session['user']['address']
+        
+        contract, web3 = connect_with_blockchain(user_address)
+        if not contract or not web3:
+            raise Exception("Failed to connect to blockchain.")
+
+        # Interact with the blockchain to store certificate details
+        try:
+            tx_hash = contract.functions.addCertificate(file_hash, file_path).transact()
+            web3.eth.wait_for_transaction_receipt(tx_hash)
+            print(f"Transaction successful: {tx_hash.hex()}")
+        except Exception as blockchain_error:
+            print(f"Blockchain interaction error: {blockchain_error}")
+            return render_template('upload-certificate.html', message="Failed to record certificate on blockchain"), 500
 
         # Return the file path for confirmation
         return render_template('upload-certificate.html',
-            message= 'certificate uploaded successfully',
-        ), 200
+                               message='Certificate uploaded and recorded successfully'), 200
 
     except Exception as e:
+        print(f"Error during upload: {e}")
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
-    
+  
 if __name__ == '__main__':
     app.run(debug=True, port=9001)
