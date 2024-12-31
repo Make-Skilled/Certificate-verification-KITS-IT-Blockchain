@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session,redirect
 from werkzeug.utils import secure_filename
 from web3 import Web3, HTTPProvider
 import bcrypt
@@ -42,6 +42,10 @@ if not os.path.exists(UPLOAD_FOLDER):
 @app.route('/')
 def home():
     return render_template('index.html')
+
+@app.route('/admin-login')
+def adminlogin():
+    return render_template('admin-login.html')
 
 @app.route('/login')
 def login():
@@ -177,5 +181,118 @@ def upload_image():
         print(f"Error during upload: {e}")
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
   
+@app.route('/get_all_certificates', methods=['GET'])
+def get_all_certificates():
+    try:
+        user_address=session['user']['address']
+        # Connect to the blockchain
+        contract, web3 = connect_with_blockchain(user_address)
+        if not contract or not web3:
+            raise Exception("Failed to connect to blockchain.")
+
+        # Call the smart contract to fetch all certificates
+        try:
+            certificates = contract.functions.getAllCertificates().call()
+        except Exception as blockchain_error:
+            print(f"Blockchain interaction error: {blockchain_error}")
+            return jsonify({'error': 'Failed to fetch all certificates from blockchain'}), 500
+
+        # Format the response
+        certificate_list = []
+        for cert in certificates:
+            certificate_list.append({
+                'owner': cert[0],
+                'hash': cert[1],
+                'filePath': cert[2]
+            })
+
+        # Return the certificate data
+        return jsonify({'certificates': certificate_list}), 200
+
+    except Exception as e:
+        print(f"Error fetching all certificates: {e}")
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+@app.route('/get_user_certificates', methods=['GET'])
+def get_user_certificates():
+    try:
+        # Check if the user is logged in
+        if 'user' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        # Get the Ethereum address from the session
+        user_address = session['user']['address']
+
+        # Connect to the blockchain and the smart contract
+        contract, web3 = connect_with_blockchain(user_address)
+        if not contract or not web3:
+            raise Exception("Failed to connect to blockchain.")
+
+        # Validate Ethereum address format
+        if not web3.isAddress(user_address):
+            return jsonify({'error': 'Invalid Ethereum address in session'}), 400
+
+        # Call the smart contract function to fetch certificates by owner
+        try:
+            certificates = contract.functions.getCertificatesByOwner(user_address).call()
+        except Exception as blockchain_error:
+            print(f"Blockchain interaction error: {blockchain_error}")
+            return render_template('certificates.html', error='Failed to fetch certificates from blockchain'), 500
+
+        # Format the response
+        certificate_list = []
+        for cert in certificates:
+            certificate_list.append({
+                'owner': cert[0],
+                'hash': cert[1],
+                'filePath': cert[2]
+            })
+
+        # Return the certificates as JSON
+        return render_template('certificates.html', certificates=certificate_list), 200
+
+    except Exception as e:
+        print(f"Error fetching user certificates: {e}")
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+@app.route('/delete_certificate', methods=['GET'])
+def delete_certificate():
+    try:
+        # Check if the user is logged in
+        if 'user' not in session:
+            return jsonify({'error': 'User not logged in'}), 401
+
+        # Retrieve user address from session
+        user_address = session['user']['address']
+        # Retrieve the certificate hash from query parameters
+        cert_hash = request.args.get('hash')
+
+        if not cert_hash:
+            return jsonify({'error': 'Certificate hash is required'}), 400
+
+        # Connect to the blockchain and smart contract
+        contract, web3 = connect_with_blockchain(user_address)
+        if not contract or not web3:
+            return jsonify({'error': 'Failed to connect to blockchain'}), 500
+
+        # Validate the Ethereum address
+        if not web3.isAddress(user_address):
+            return jsonify({'error': 'Invalid Ethereum address in session'}), 400
+
+        # Interact with the smart contract to delete the certificate
+        try:
+            tx_hash = contract.functions.deleteCertificate(cert_hash).transact({'from': user_address})
+            web3.eth.wait_for_transaction_receipt(tx_hash)
+            # Redirect back to the user's certificate page
+            return redirect('/get_user_certificates')
+        except Exception as blockchain_error:
+            print(f"Blockchain interaction error: {blockchain_error}")
+            return jsonify({'error': 'Failed to delete certificate from blockchain'}), 500
+
+    except Exception as e:
+        print(f"Error in delete_certificate: {e}")
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+    
 if __name__ == '__main__':
     app.run(debug=True, port=9001)
