@@ -82,7 +82,8 @@
       color: #555;
     }
 
-    input[type="file"] {
+    input[type="file"],
+    input[type="text"]  {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
@@ -175,10 +176,18 @@
     <h1>Upload Your Certificate</h1>
     <center><p>{{message}}</p></center>
     <form action='/upload_certificate' method='post' enctype='multipart/form-data'>
+      <label for="certificateId">Enter Certificate ID:</label>
+      <input type="text" id="certificateId" name="certificateId" placeholder="Enter Certificate ID" required>
+    
+      <label for="userAddress">Enter User Address:</label>
+      <input type="text" id="userAddress" name="userAddress" placeholder="Enter User Address" required>
+    
       <label for="certificateFile">Choose your certificate file:</label>
       <input type="file" id="certificateFile" name="imageFile" accept=".pdf" required>
+    
       <button type="submit">Upload</button>
     </form>
+    
   </div>
 
 </body>

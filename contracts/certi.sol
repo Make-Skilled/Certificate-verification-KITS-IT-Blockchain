@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-contract certi {
+contract Certi {
     // Struct to represent a user
     struct User {
         string fullName;
@@ -12,9 +12,9 @@ contract certi {
 
     // Struct to represent a certificate
     struct Certificate {
-        address owner;
-        string hash; // Unique hash for the certificate
-        string filePath; // File path for the certificate
+        address issuer;  // Address of the user who issued the certificate
+        string hash;     // Hash of the certificate file
+        string filePath; // Path of the stored certificate
     }
 
     // Mapping to store users by their Ethereum address
@@ -29,8 +29,11 @@ contract certi {
     // Mapping to store certificates associated with a user's address
     mapping(address => Certificate[]) private user_certificates;
 
-    // Array to store all certificate hashes
-    string[] private allCertificateHashes;
+    // Mapping from certificateId to Certificate struct for easy lookup by ID
+    mapping(string => Certificate) public certificateDetails;
+
+    // Array to store all certificate hashes for global access
+    string[] public allCertificateHashes;
 
     // Function to add a new user
     function addUser(
@@ -63,25 +66,26 @@ contract certi {
     }
 
     // Function to add a certificate
-    function addCertificate(string memory hash, string memory filePath) public {
+    function addCertificate(
+        string memory certificateId,
+        string memory hash,
+        string memory filePath,
+        address userAddress
+    ) public {
+        require(bytes(certificateId).length > 0, "Certificate ID is required.");
         require(bytes(hash).length > 0, "Certificate hash is required.");
         require(bytes(filePath).length > 0, "File path is required.");
+        require(userAddress != address(0), "User address is required.");
         require(bytes(certificates[hash].hash).length == 0, "Certificate already exists.");
+        require(bytes(certificateDetails[certificateId].hash).length == 0, "Certificate ID already exists.");
 
-        certificates[hash] = Certificate(msg.sender, hash, filePath);
-        user_certificates[msg.sender].push(certificates[hash]);
+        // Create a new Certificate struct and add it to the mappings
+        certificates[hash] = Certificate(userAddress, hash, filePath);
+        certificateDetails[certificateId] = certificates[hash];
+
+        // Map the certificate to the user and store the hash in allCertificateHashes
+        user_certificates[userAddress].push(certificates[hash]);
         allCertificateHashes.push(hash);
-    }
-
-    // Function to get certificate details
-    function getCertificate(string memory hash)
-        public
-        view
-        returns (address owner, string memory filePath)
-    {
-        Certificate memory certificate = certificates[hash];
-        require(bytes(certificate.hash).length > 0, "Certificate not found.");
-        return (certificate.owner, certificate.filePath);
     }
 
     // Function to fetch certificates for a specific address
@@ -103,33 +107,14 @@ contract certi {
 
     // Function to fetch all certificates associated with a specific address
     function getCertificatesByOwner(address userAddress) public view returns (Certificate[] memory) {
-        uint256 count = 0;
-
-        for (uint256 i = 0; i < allCertificateHashes.length; i++) {
-            string memory certificateHash = allCertificateHashes[i];
-            if (certificates[certificateHash].owner == userAddress) {
-                count++;
-            }
-        }
-
-        Certificate[] memory userCertificates = new Certificate[](count);
-        uint256 index = 0;
-        for (uint256 i = 0; i < allCertificateHashes.length; i++) {
-            string memory certificateHash = allCertificateHashes[i];
-            if (certificates[certificateHash].owner == userAddress) {
-                userCertificates[index] = certificates[certificateHash];
-                index++;
-            }
-        }
-
-        return userCertificates;
+        return user_certificates[userAddress];
     }
 
     // Function to delete a certificate
     function deleteCertificate(string memory hash) public {
         Certificate memory cert = certificates[hash];
         require(bytes(cert.hash).length > 0, "Certificate not found.");
-        require(cert.owner == msg.sender, "Only the owner can delete the certificate.");
+        require(cert.issuer == msg.sender, "Only the issuer can delete the certificate.");
 
         // Remove from the certificates mapping
         delete certificates[hash];
@@ -152,5 +137,10 @@ contract certi {
                 break;
             }
         }
+    }
+
+    // Function to retrieve all stored certificate hashes across all users
+    function getAllCertificateHashes() public view returns (string[] memory) {
+        return allCertificateHashes;
     }
 }

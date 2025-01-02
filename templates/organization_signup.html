@@ -179,21 +179,21 @@
 
     <!-- Signup Form -->
     <div class="signup-container">
-        <h1>Signup</h1>
+        <h1>Organization Signup</h1>
         <center><p>{{message}}</p></center>
         <center><p>{{error}}</p></center>
         <p class="subtitle">Create an account by filling out the details</p>
 
         <!-- Signup Form -->
-        <form id="signupForm" action='/register' method='post'>
+        <form id="signupForm" action='/register_organization' method='post'>
             <div class="form-group">
                 <label for="address">Ethereum Address:</label>
                 <input type="text" id="address" name="address" placeholder="Enter your Ethereum address" required>
             </div>
         
             <div class="form-group">
-                <label for="fullname">Full Name:</label>
-                <input type="text" id="fullname" name="fullName" placeholder="Enter your full name" required>
+                <label for="fullname">Organization Name:</label>
+                <input type="text" id="fullname" name="organizationName" placeholder="Enter your organization name" required>
             </div>
         
             <div class="form-group">
