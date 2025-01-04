@@ -8,6 +8,7 @@ contract Certi {
         string email;
         string password; // Store hashed password
         string username;
+        string usertype; // Add the user type field
     }
 
     // Struct to represent a certificate
@@ -15,6 +16,7 @@ contract Certi {
         address issuer;  // Address of the user who issued the certificate
         string hash;     // Hash of the certificate file
         string filePath; // Path of the stored certificate
+        string description; // Description of the certificate
     }
 
     // Mapping to store users by their Ethereum address
@@ -40,17 +42,19 @@ contract Certi {
         string memory fullName, 
         string memory email, 
         string memory password, 
-        string memory username
+        string memory username, 
+        string memory usertype // Add usertype parameter
     ) public {
         require(bytes(fullName).length > 0, "Full name is required.");
         require(bytes(email).length > 0, "Email is required.");
         require(bytes(password).length > 0, "Password is required.");
         require(bytes(username).length > 0, "Username is required.");
+        require(bytes(usertype).length > 0, "User type is required.");
 
         require(bytes(users[msg.sender].email).length == 0, "User already registered.");
         require(!usernames[username], "Username already taken.");
 
-        users[msg.sender] = User(fullName, email, password, username);
+        users[msg.sender] = User(fullName, email, password, username, usertype); // Store usertype
         usernames[username] = true;
     }
 
@@ -58,11 +62,11 @@ contract Certi {
     function getUser(address userAddress)
         public
         view
-        returns (string memory fullName, string memory email, string memory username, string memory password)
+        returns (string memory fullName, string memory email, string memory username, string memory password, string memory usertype)
     {
         User memory user = users[userAddress];
         require(bytes(user.email).length > 0, "User not found.");
-        return (user.fullName, user.email, user.username, user.password);
+        return (user.fullName, user.email, user.username, user.password, user.usertype); // Return usertype
     }
 
     // Function to add a certificate
@@ -70,17 +74,20 @@ contract Certi {
         string memory certificateId,
         string memory hash,
         string memory filePath,
-        address userAddress
+        string memory description, // New field
+        address userAddress,
+        address addedBy
     ) public {
         require(bytes(certificateId).length > 0, "Certificate ID is required.");
         require(bytes(hash).length > 0, "Certificate hash is required.");
         require(bytes(filePath).length > 0, "File path is required.");
+        require(bytes(description).length > 0, "Description is required."); // Validate description
         require(userAddress != address(0), "User address is required.");
         require(bytes(certificates[hash].hash).length == 0, "Certificate already exists.");
         require(bytes(certificateDetails[certificateId].hash).length == 0, "Certificate ID already exists.");
 
         // Create a new Certificate struct and add it to the mappings
-        certificates[hash] = Certificate(userAddress, hash, filePath);
+        certificates[hash] = Certificate(addedBy, hash, filePath, description); // Include description
         certificateDetails[certificateId] = certificates[hash];
 
         // Map the certificate to the user and store the hash in allCertificateHashes

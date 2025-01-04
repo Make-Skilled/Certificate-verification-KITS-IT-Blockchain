@@ -161,6 +161,24 @@
                 transform: translateY(0);
             }
         }
+        /* Additional Styling for the Select Dropdown */
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    background-color: white;
+}
+
+/* Focus Effect for the Dropdown */
+.form-group select:focus {
+    border-color: #F9A826;
+    outline: none;
+    box-shadow: 0 0 5px rgba(249, 168, 38, 0.5);
+}
+
     </style>
 </head>
 <body>
@@ -210,10 +228,13 @@
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" placeholder="Create a password" required>
             </div>
-        
+
             <div class="form-group">
-                <label for="confirm-password">Confirm Password:</label>
-                <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter your password" required>
+                <label for="usertype">User Type:</label>
+                <select id="usertype" name="usertype" required>
+                    <option value="user">User</option>
+                    <option value="organization">Organization</option>
+                </select>
             </div>
         
             <button type="submit" class="btn-signup">Signup</button>

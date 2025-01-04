@@ -170,16 +170,29 @@
         <label for="email">Email:</label>
         <input type="email" id="email" name="email" placeholder="Enter Email" required>
       </div>
+      
       <div class="form-group">
-        <label for="email">Address:</label>
+        <label for="address">Address:</label>
         <input type="text" id="address" name="address" placeholder="Enter address" required>
       </div>
+      
       <div class="form-group">
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" placeholder="Enter Password" required>
       </div>
+      
+      <!-- User Type Select Box -->
+      <div class="form-group">
+        <label for="usertype">User Type:</label>
+        <select id="usertype" name="usertype" required>
+          <option value="user">User</option>
+          <option value="organization">Organization</option>
+        </select>
+      </div>
+    
       <button id="loginButton" type="submit">Login</button>
     </form>
+    
   </div>
   
 </body>

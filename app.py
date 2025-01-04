@@ -53,14 +53,6 @@ def home():
 def adminlogin():
     return render_template('admin-login.html')
 
-@app.route('/organization_signup')
-def org_signup():
-    return render_template('organization_signup.html')
-
-@app.route('/organization_login')
-def organization_login():
-    return render_template('organization_login.html')
-
 @app.route('/login')
 def login():
     return render_template('login.html')
@@ -73,26 +65,37 @@ def uploadcerti():
 def signup():
     return render_template('signup.html')
 
+@app.route("/user_homepage")
+def user_home():
+    return render_template("user-homapage.html")
+
+@app.route("/organization_dashboard")
+def org_dash():
+    return render_template("organization-dashboard.html")
+
 @app.route('/register', methods=['POST'])
 def register_user():
     try:
-        
         # Parse form data
         full_name = request.form.get('fullName')
         email = request.form.get('email').lower()
         password = request.form.get('password')
         username = request.form.get('username')
         address = request.form.get('address')  # Retrieve Ethereum address from the form
+        usertype = request.form.get('usertype')
 
+        # Input validation
+        if not address or not full_name or not email or not password or not username or not usertype:
+            return render_template('signup.html', error="All fields are required"), 400
+
+        if usertype not in ['user', 'organization']:
+            return render_template('signup.html', error="Invalid user type"), 400
+
+        # Validate Ethereum address format
         contract, web3 = connect_with_blockchain(address)
         if not contract or not web3:
             raise Exception("Failed to connect to blockchain.")
-        
-        # Input validation
-        if not address or not full_name or not email or not password or not username:
-            return render_template('signup.html', error="All fields are required"), 400
 
-        # Validate Ethereum address format
         if not web3.isAddress(address):
             return render_template('signup.html', error="Invalid Ethereum address"), 400
 
@@ -101,7 +104,7 @@ def register_user():
 
         # Interact with the blockchain to add the user
         try:
-            tx_hash = contract.functions.addUser(full_name, email, hashed_password, username).transact()
+            tx_hash = contract.functions.addUser(full_name, email, hashed_password, username, usertype).transact()
             web3.eth.wait_for_transaction_receipt(tx_hash)
         except Exception as blockchain_error:
             print(f"Blockchain error during registration: {blockchain_error}")
@@ -114,46 +117,13 @@ def register_user():
         print(f"Error during registration: {e}")
         return render_template('signup.html', error="An internal error occurred"), 500
 
-@app.route('/register_organization', methods=['POST'])
-def register_org():
-    try:
-        
-        # Parse form data
-        full_name = request.form.get('organizationName')
-        email = request.form.get('email').lower()
-        password = request.form.get('password')
-        username = request.form.get('username')
-        address = request.form.get('address')  # Retrieve Ethereum address from the form
+@app.route('/organization_signup')
+def org_signup():
+    return render_template('organization_signup.html')
 
-        contract, web3 = connect_with_blockchain(address)
-        if not contract or not web3:
-            raise Exception("Failed to connect to blockchain.")
-        
-        # Input validation
-        if not address or not full_name or not email or not password or not username:
-            return render_template('signup.html', error="All fields are required"), 400
-
-        # Validate Ethereum address format
-        if not web3.isAddress(address):
-            return render_template('signup.html', error="Invalid Ethereum address"), 400
-
-        # Hash the password
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-        # Interact with the blockchain to add the user
-        try:
-            tx_hash = contract.functions.addUser(full_name, email, hashed_password, username).transact()
-            web3.eth.wait_for_transaction_receipt(tx_hash)
-        except Exception as blockchain_error:
-            print(f"Blockchain error during registration: {blockchain_error}")
-            return render_template('signup.html', error="Email or username already exists"), 500
-
-        # If successful, return a success message
-        return render_template('organization_signup.html', message="Organization registration successful"), 201
-
-    except Exception as e:
-        print(f"Error during registration: {e}")
-        return render_template('signup.html', error="An internal error occurred"), 500
+@app.route('/organization_login')
+def organization_login():
+    return render_template('organization_login.html')
 
 
 @app.route('/login', methods=['POST'])
@@ -163,61 +133,51 @@ def login_user():
         email = request.form['email']
         password = request.form['password']
         user_address = request.form['address']  # Ethereum address provided by the user
-        print(email,password,user_address)
+        usertype = request.form['usertype']  # User type selected by the user (user/organization)
+        print(email, password, user_address, usertype)
+        
         # Input validation
-        if not email or not password or not user_address:
+        if not email or not password or not user_address or not usertype:
             return render_template('login.html', message="All fields are required")
 
+        # Connect to the blockchain contract
         contract, web3 = connect_with_blockchain(user_address)
         if not contract or not web3:
             raise Exception("Failed to connect to blockchain.")
-        
-        fullname,email,username,password=contract.functions.getUser(user_address).call()
-        
-        # Successful login
+
+        # Fetch user details from the blockchain (including usertype)
+        fullname, email_from_contract, username, stored_password, stored_usertype = contract.functions.getUser(user_address).call()
+
+        # Check if the email from the form matches the one from the blockchain
+        if email.lower() != email_from_contract.lower():
+            return render_template('login.html', message="Email does not match.")
+
+        # Verify the password (compare hashed passwords)
+        if not bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+            return render_template('login.html', message="Incorrect password.")
+
+        # Verify the user type
+        if usertype != stored_usertype:
+            return render_template('login.html', message="User type does not match.")
+
+        # Successful login - Store session data
         session['user'] = {
             'full_name': fullname,
-            'email': email,
+            'email': email_from_contract,
             'username': username,
-            'address':user_address
+            'address': user_address,
+            'usertype': stored_usertype
         }
-        return render_template('user-homepage.html'), 200
+
+        # Redirect based on usertype
+        if stored_usertype == "organization":
+            return redirect(url_for('render_organization_dashboard'))  # Redirect to organization dashboard
+        else:
+            return redirect(url_for('render_user_homepage'))  # Redirect to user homepage
 
     except Exception as e:
         print(f"Error during login: {e}")
         return render_template('login.html', message="An internal error occurred"), 500
-
-@app.route('/login_organization', methods=['POST'])
-def login_org():
-    try:
-        # Parse form data
-        email = request.form['email']
-        password = request.form['password']
-        user_address = request.form['address']  # Ethereum address provided by the user
-        print(email,password,user_address)
-        # Input validation
-        if not email or not password or not user_address:
-            return render_template('login.html', message="All fields are required")
-
-        contract, web3 = connect_with_blockchain(user_address)
-        if not contract or not web3:
-            raise Exception("Failed to connect to blockchain.")
-        
-        fullname,email,username,password=contract.functions.getUser(user_address).call()
-        
-        # Successful login
-        session['user'] = {
-            'full_name': fullname,
-            'email': email,
-            'username': username,
-            'address':user_address
-        }
-        return render_template('organization_homepage.html'), 200
-
-    except Exception as e:
-        print(f"Error during login: {e}")
-        return render_template('login.html', message="An internal error occurred"), 500
-
 @app.route('/upload_certificate', methods=['POST'])
 def upload_certificate():
     try:
@@ -390,31 +350,6 @@ def delete_certificate():
         print(f"Error in delete_certificate: {e}")
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
-# Route for the admin login form page
-@app.route('/admin_login', methods=['GET', 'POST'])
-def admin_login():
-    if request.method == 'POST':
-        # Get the form data
-        username = request.form['username']
-        password = request.form['password']
-        
-        # Check if the username and password are correct
-        if username == 'admin@123' and password == '1234567890':
-            # Redirect to the admin dashboard if credentials are correct
-            return redirect(url_for('admin_dashboard'))
-        else:
-            # Return an error message if credentials are incorrect
-            message = "Invalid username or password."
-            return render_template('admin_login.html', message=message)
-    
-    # Render the login page if it's a GET request
-    return render_template('admin_login.html')
-
-# Route for the admin dashboard
-@app.route('/admin_dashboard')
-def admin_dashboard():
-    return render_template('admin-dashboard.html')
-
 # Route to handle certificate upload
 @app.route('/upload_pdf', methods=['POST'])
 def upload_pdf():
@@ -467,6 +402,11 @@ def upload_pdf():
 @app.route('/verify')
 def verify():
     return render_template('verify_doc.html')
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=9001)
