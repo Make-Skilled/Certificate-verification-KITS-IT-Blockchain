@@ -14,9 +14,41 @@ contract Certi {
     // Struct to represent a certificate
     struct Certificate {
         address issuer;  // Address of the user who issued the certificate
+        address user;
         string hash;     // Hash of the certificate file
+        string title;
         string filePath; // Path of the stored certificate
-        string description; // Description of the certificate
+        bool exist;
+    }
+
+    // Mapping to store certificates by user and issuer addresses
+    mapping(address => Certificate[]) private userCertificates;
+    mapping(address => Certificate[]) private organizationCertificates;
+
+    // Function to add a certificate
+    function addCertificate(address _issuer, address _user, string memory _hash, string memory _title, string memory _filePath) public {
+        // Check if the certificate already exists for the issuer and user
+        Certificate[] storage issuerCertificates = organizationCertificates[_issuer];
+        for (uint i = 0; i < issuerCertificates.length; i++) {
+            require(
+                keccak256(abi.encodePacked(issuerCertificates[i].hash)) != keccak256(abi.encodePacked(_hash)),
+                "Certificate already exists"
+            );
+        }
+
+        // Create the new certificate
+        Certificate memory new_certificate = Certificate({
+            issuer: _issuer,
+            user: _user,
+            hash: _hash,
+            title: _title,
+            filePath: _filePath,
+            exist: true
+        });
+
+        // Add the new certificate to the mappings
+        userCertificates[_user].push(new_certificate);
+        organizationCertificates[_issuer].push(new_certificate);
     }
 
     // Mapping to store users by their Ethereum address
@@ -24,18 +56,6 @@ contract Certi {
 
     // Mapping to ensure unique usernames
     mapping(string => bool) private usernames;
-
-    // Mapping to store certificates by their hash
-    mapping(string => Certificate) private certificates;
-
-    // Mapping to store certificates associated with a user's address
-    mapping(address => Certificate[]) private user_certificates;
-
-    // Mapping from certificateId to Certificate struct for easy lookup by ID
-    mapping(string => Certificate) public certificateDetails;
-
-    // Array to store all certificate hashes for global access
-    string[] public allCertificateHashes;
 
     // Function to add a new user
     function addUser(
@@ -69,85 +89,13 @@ contract Certi {
         return (user.fullName, user.email, user.username, user.password, user.usertype); // Return usertype
     }
 
-    // Function to add a certificate
-    function addCertificate(
-        string memory certificateId,
-        string memory hash,
-        string memory filePath,
-        string memory description, // New field
-        address userAddress,
-        address addedBy
-    ) public {
-        require(bytes(certificateId).length > 0, "Certificate ID is required.");
-        require(bytes(hash).length > 0, "Certificate hash is required.");
-        require(bytes(filePath).length > 0, "File path is required.");
-        require(bytes(description).length > 0, "Description is required."); // Validate description
-        require(userAddress != address(0), "User address is required.");
-        require(bytes(certificates[hash].hash).length == 0, "Certificate already exists.");
-        require(bytes(certificateDetails[certificateId].hash).length == 0, "Certificate ID already exists.");
-
-        // Create a new Certificate struct and add it to the mappings
-        certificates[hash] = Certificate(addedBy, hash, filePath, description); // Include description
-        certificateDetails[certificateId] = certificates[hash];
-
-        // Map the certificate to the user and store the hash in allCertificateHashes
-        user_certificates[userAddress].push(certificates[hash]);
-        allCertificateHashes.push(hash);
-    }
-
     // Function to fetch certificates for a specific address
     function getCertificates(address userAddress) public view returns (Certificate[] memory) {
-        return user_certificates[userAddress];
+        return userCertificates[userAddress];
     }
 
-    // Function to fetch all certificates in the system
-    function getAllCertificates() public view returns (Certificate[] memory) {
-        Certificate[] memory allCertificates = new Certificate[](allCertificateHashes.length);
-
-        for (uint256 i = 0; i < allCertificateHashes.length; i++) {
-            string memory certificateHash = allCertificateHashes[i];
-            allCertificates[i] = certificates[certificateHash];
-        }
-
-        return allCertificates;
-    }
-
-    // Function to fetch all certificates associated with a specific address
-    function getCertificatesByOwner(address userAddress) public view returns (Certificate[] memory) {
-        return user_certificates[userAddress];
-    }
-
-    // Function to delete a certificate
-    function deleteCertificate(string memory hash) public {
-        Certificate memory cert = certificates[hash];
-        require(bytes(cert.hash).length > 0, "Certificate not found.");
-        require(cert.issuer == msg.sender, "Only the issuer can delete the certificate.");
-
-        // Remove from the certificates mapping
-        delete certificates[hash];
-
-        // Remove from allCertificateHashes
-        for (uint256 i = 0; i < allCertificateHashes.length; i++) {
-            if (keccak256(bytes(allCertificateHashes[i])) == keccak256(bytes(hash))) {
-                allCertificateHashes[i] = allCertificateHashes[allCertificateHashes.length - 1];
-                allCertificateHashes.pop();
-                break;
-            }
-        }
-
-        // Remove from user_certificates
-        Certificate[] storage userCerts = user_certificates[msg.sender];
-        for (uint256 i = 0; i < userCerts.length; i++) {
-            if (keccak256(bytes(userCerts[i].hash)) == keccak256(bytes(hash))) {
-                userCerts[i] = userCerts[userCerts.length - 1];
-                userCerts.pop();
-                break;
-            }
-        }
-    }
-
-    // Function to retrieve all stored certificate hashes across all users
-    function getAllCertificateHashes() public view returns (string[] memory) {
-        return allCertificateHashes;
+        // Function to fetch all certificates for a specific organization
+    function getOrganizationCertificates(address _issuer) public view returns (Certificate[] memory) {
+        return organizationCertificates[_issuer];
     }
 }
