@@ -50,12 +50,14 @@
   <div class="container">
     <h1>Upload Your PDF</h1>
     <p>{{message}}</p>
-    <form id="uploadForm" action="/upload_pdf" method="POST" enctype="multipart/form-data">
+    <form id="uploadForm" action="/verify_certificate" method="POST" enctype="multipart/form-data">
       <input type="file" name="file" accept="application/pdf" required>
       <button type="submit">Upload PDF</button>
-    </form>
+    </form> 
     <div id="hashResult"></div>
+    <button onclick="window.history.back()">Back</button>
   </div>
+
 
 </body>
 </html>

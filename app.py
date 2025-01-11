@@ -67,7 +67,7 @@ def signup():
 
 @app.route("/user_homepage")
 def user_home():
-    return render_template("user-homapage.html")
+    return render_template("user-homepage.html")
 
 @app.route("/organization_dashboard")
 def org_dash():
@@ -265,8 +265,9 @@ def delete_certificate():
         print(f"Error in delete_certificate: {e}")
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
-@app.route('/verify')
-def verify():
+@app.route('/verify_certificate/<address>')
+def verify(address):
+    session['organizaton_address']=address
     return render_template('verify_doc.html')
 
 @app.route("/logout")
@@ -280,7 +281,139 @@ def manage_certificates():
 
 @app.route("/list_certificates")
 def list_certificates():
-    return render_template("list-certificates.html")
+    # Validate Ethereum address format
+    address=session['user']['address']
+    contract, web3 = connect_with_blockchain(address)
+    if not contract or not web3:
+        raise Exception("Failed to connect to blockchain.")
+    
+    certificates=contract.functions.getOrganizationCertificates(address).call()
+    print(certificates)
+    return render_template("list-certificates.html",certificates=certificates)
+
+@app.route("/user_certificates")
+def user_certificates():
+    # Validate Ethereum address format
+    address=session['user']['address']
+    contract, web3 = connect_with_blockchain(address)
+    if not contract or not web3:
+        raise Exception("Failed to connect to blockchain.")
+    
+    certificates=contract.functions.getUserCertificates(address).call()
+    print(certificates)
+    return render_template("user_certificates.html",certificates=certificates)
+
+@app.route("/organization_requests")
+def organization_requests():
+    address=session['user']['address']
+    contract, web3 = connect_with_blockchain(address)
+    if not contract or not web3:
+        raise Exception("Failed to connect to blockchain.")
+    
+    requests=contract.functions.getOrganizationVerificationCertificates(address).call()
+    print(requests)
+    return render_template("user_requests.html",requests_data=requests)
+
+@app.route("/send_request")
+def send_request():
+    return render_template("send_request.html")
+
+@app.route("/send_request", methods=["POST"])
+def send_orgrequest():
+    try:
+        user_address=session['user']['address']
+        sender_address = request.form['senderAddress']
+        issuer_address=request.form['issuerAddress']
+        file = request.files['imageFile']
+
+        # Validate the file
+        if file.filename == '':
+            return render_template('send_request.html', message='No selected file'), 400
+
+        # Secure the filename and save the file to the uploads folder
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+
+        # Reset the file pointer to the beginning and save the file
+        file.seek(0)
+        file.save(file_path)
+
+        # Connect to blockchain
+        contract, web3 = connect_with_blockchain(session['user']['address'])
+        if not contract or not web3:
+            raise Exception("Failed to connect to blockchain.")
+
+        # Interact with the blockchain to store certificate details
+        try:
+            username=contract.functions.getUsername(issuer_address).call()
+        except:
+            return render_template("send_request.html",message="Sender or the Organization does not exist")
+        try:
+            tx_hash = contract.functions.addVerificationCertificate(issuer_address,user_address,sender_address,session['user']['username'],username,file_path).transact()
+            web3.eth.wait_for_transaction_receipt(tx_hash)
+            print(f"Transaction successful: {tx_hash.hex()}")
+        except Exception as blockchain_error:
+            print(f"Blockchain interaction error: {blockchain_error}")
+            return render_template('send_request.html', message=blockchain_error), 500
+
+        # Return success message
+        return render_template('upload-certificate.html', message='Certificate uploaded and recorded successfully'), 200
+    except Exception as e:
+        print(f"Error during upload: {e}")
+        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+
+
+# Route to handle file upload and hash generation
+@app.route('/verify_certificate', methods=['POST'])
+def verify_certificate():
+    print("hello")
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part in the request"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "No file selected"}), 400
+
+    if file and file.filename.endswith('.pdf'):
+        # Read the file content
+        file_content = file.read()
+        
+        # Generate the hash (using SHA256 in this example)
+        file_hash = hashlib.sha256(file_content).hexdigest()
+
+        # Return the hash as a response
+        contract, web3 = connect_with_blockchain(session['user']['address'])
+        if not contract or not web3:
+            raise Exception("Failed to connect to blockchain.")
+        
+        try:
+            response=contract.functions.checkHashExists(session['organization_address'],file_hash).call()
+            print(response)
+        except Exception as e:
+            return render_template('verify_doc.html',message=e)
+        return jsonify({"hash": file_hash})
+
+    return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
+
+@app.route('/request_organization', methods=['POST'])
+def request_organization():
+    # Capture form data
+    path = request.form.get('path')
+    username = request.form.get('username')
+    user = request.form.get('user')
+    organization = request.form.get('organization')
+
+    # Render the data in an HTML response
+    response_data = {
+        'path': path,
+        'username': username,
+        'user': user,
+        'organization': organization
+    }
+
+    # Return the data as a JSON response
+    return jsonify(response_data)
 
 if __name__ == '__main__':
     app.run(debug=True, port=9001)

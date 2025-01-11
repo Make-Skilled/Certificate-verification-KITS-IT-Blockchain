@@ -55,7 +55,7 @@
       text-align: center;
       color: white;
       font-size: 1.5em;
-      margin-top: 60px; /* Adjusted for navbar */
+      margin-top: 48px; /* Adjusted for navbar */
     }
 
     .service-container {
@@ -156,9 +156,9 @@
   <div class="service-container">
     <!-- Service 1: Certificate Upload -->
     <div class="service-box">
-      <h3>Upload Your Certificate</h3>
+      <h3>Send request to organization</h3>
       <p>Upload your certificates for verification. Ensure they are authentic and trusted by the issuing authority.</p>
-      <a href='/upload_certificate'><button >Upload Certificate</button></a>
+      <a href='/send_request'><button >Send request</button></a>
     </div>
 
     <div class="service-box">
@@ -185,7 +185,7 @@
     <div class="service-box">
       <h3>List of Certificates</h3>
       <p>View all your issued certificates in one place. Check the verification status of each certificate.</p>
-      <button onclick="window.location.href='list-certificates.html'">View Certificates</button>
+      <a href="/user_certificates"><button>View Certificates</button></a>
     </div>
   </div>
  

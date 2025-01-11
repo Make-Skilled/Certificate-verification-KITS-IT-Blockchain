@@ -21,8 +21,7 @@ contract Certi {
         bool exist;
     }
 
-    // Mapping to store certificates by user and issuer addresses
-    mapping(address => Certificate[]) private userCertificates;
+        mapping(address => Certificate[]) private userCertificates;
     mapping(address => Certificate[]) private organizationCertificates;
 
     // Function to add a certificate
@@ -50,7 +49,66 @@ contract Certi {
         userCertificates[_user].push(new_certificate);
         organizationCertificates[_issuer].push(new_certificate);
     }
+// Struct to represent a verification certificate
+    struct VerificationCertificates {
+        uint id;  // Auto-generated ID
+        address issuedBy;
+        address user;
+        address organizationAddress;
+        string username;
+        string organizationName;
+        string filepath;
+        string status;
+    }
 
+    // Mappings to store verification certificates by user and organization
+    mapping(address => VerificationCertificates[]) private userVerificationCertificates;
+    mapping(address => VerificationCertificates[]) private organizationVerificationCertificates;
+
+    // Counter for auto-generating unique IDs
+    uint private certificateCounter;
+
+    // Function to add a new verification certificate
+    function addVerificationCertificate(
+        address issuedBy,
+        address user,
+        address organizationAddress,
+        string memory username,
+        string memory organizationName,
+        string memory filepath
+    ) public {
+        // Increment the counter to get a new unique ID
+        certificateCounter++;
+
+        // Create a new verification certificate with the auto-generated ID
+        VerificationCertificates memory newCertificate = VerificationCertificates({
+            id: certificateCounter,  // Assign the auto-generated ID
+            issuedBy: issuedBy,
+            user: user,
+            organizationAddress: organizationAddress,
+            username: username,
+            organizationName: organizationName,
+            filepath: filepath,
+            status: "pending"  // Set the initial status to "pending"
+        });
+
+        // Store the certificate in the user's and organization's mapping
+        userVerificationCertificates[user].push(newCertificate);
+        organizationVerificationCertificates[organizationAddress].push(newCertificate);
+    }
+
+
+    // Optional: You may add getter functions to retrieve the certificates if needed
+    function getUserVerificationCertificates(address user) public view returns (VerificationCertificates[] memory) {
+        return userVerificationCertificates[user];
+    }
+
+    function getOrganizationVerificationCertificates(address organizationAddress) public view returns (VerificationCertificates[] memory) {
+        return organizationVerificationCertificates[organizationAddress];
+    }
+
+
+ 
     // Mapping to store users by their Ethereum address
     mapping(address => User) private users;
 
@@ -98,4 +156,29 @@ contract Certi {
     function getOrganizationCertificates(address _issuer) public view returns (Certificate[] memory) {
         return organizationCertificates[_issuer];
     }
+
+        function getUserCertificates(address _issuer) public view returns (Certificate[] memory) {
+        return userCertificates[_issuer];
+    }
+
+    // Function to fetch the username by address
+function getUsername(address userAddress) public view returns (string memory) {
+    // Ensure the user exists
+    require(bytes(users[userAddress].email).length > 0, "User does not exist.");
+    
+    return users[userAddress].username;
+}
+
+// Function to check if a hash already exists in the user's certificates
+function checkHashExists(address organizationAddress, string memory hash) public view returns (string memory) {
+    Certificate[] storage certificates = organizationCertificates[organizationAddress];
+    
+    for (uint i = 0; i < certificates.length; i++) {
+        if (keccak256(abi.encodePacked(certificates[i].hash)) == keccak256(abi.encodePacked(hash))) {
+            return "Certificate hash exists";
+        }
+    }
+    
+    return "Certificate hash does not exist";
+}
 }
