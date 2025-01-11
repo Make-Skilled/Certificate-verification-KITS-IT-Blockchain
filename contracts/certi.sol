@@ -21,7 +21,7 @@ contract Certi {
         bool exist;
     }
 
-        mapping(address => Certificate[]) private userCertificates;
+    mapping(address => Certificate[]) private userCertificates;
     mapping(address => Certificate[]) private organizationCertificates;
 
     // Function to add a certificate
@@ -49,7 +49,8 @@ contract Certi {
         userCertificates[_user].push(new_certificate);
         organizationCertificates[_issuer].push(new_certificate);
     }
-// Struct to represent a verification certificate
+
+    // Struct to represent a verification certificate
     struct VerificationCertificates {
         uint id;  // Auto-generated ID
         address issuedBy;
@@ -97,18 +98,33 @@ contract Certi {
         organizationVerificationCertificates[organizationAddress].push(newCertificate);
     }
 
+    // Function to update the status of a verification certificate
+    function updateCertificateStatus(address organization, uint certificateId, string memory newStatus) public {
+        // Find the certificate in the organization's list
+        VerificationCertificates[] storage certificates = organizationVerificationCertificates[organization];
+        bool updated = false;
+        
+        for (uint i = 0; i < certificates.length; i++) {
+            if (certificates[i].id == certificateId) {
+                certificates[i].status = newStatus;
+                updated = true;
+                break;
+            }
+        }
+        
+        require(updated, "Certificate not found.");
+    }
 
-    // Optional: You may add getter functions to retrieve the certificates if needed
+    // Function to fetch user verification certificates
     function getUserVerificationCertificates(address user) public view returns (VerificationCertificates[] memory) {
         return userVerificationCertificates[user];
     }
 
+    // Function to fetch organization verification certificates
     function getOrganizationVerificationCertificates(address organizationAddress) public view returns (VerificationCertificates[] memory) {
         return organizationVerificationCertificates[organizationAddress];
     }
 
-
- 
     // Mapping to store users by their Ethereum address
     mapping(address => User) private users;
 
@@ -152,33 +168,29 @@ contract Certi {
         return userCertificates[userAddress];
     }
 
-        // Function to fetch all certificates for a specific organization
+    // Function to fetch all certificates for a specific organization
     function getOrganizationCertificates(address _issuer) public view returns (Certificate[] memory) {
         return organizationCertificates[_issuer];
     }
 
-        function getUserCertificates(address _issuer) public view returns (Certificate[] memory) {
-        return userCertificates[_issuer];
-    }
-
     // Function to fetch the username by address
-function getUsername(address userAddress) public view returns (string memory) {
-    // Ensure the user exists
-    require(bytes(users[userAddress].email).length > 0, "User does not exist.");
-    
-    return users[userAddress].username;
-}
-
-// Function to check if a hash already exists in the user's certificates
-function checkHashExists(address organizationAddress, string memory hash) public view returns (string memory) {
-    Certificate[] storage certificates = organizationCertificates[organizationAddress];
-    
-    for (uint i = 0; i < certificates.length; i++) {
-        if (keccak256(abi.encodePacked(certificates[i].hash)) == keccak256(abi.encodePacked(hash))) {
-            return "Certificate hash exists";
-        }
+    function getUsername(address userAddress) public view returns (string memory) {
+        // Ensure the user exists
+        require(bytes(users[userAddress].email).length > 0, "User does not exist.");
+        
+        return users[userAddress].username;
     }
-    
-    return "Certificate hash does not exist";
-}
+
+    // Function to check if a hash already exists in the user's certificates
+    function checkHashExists(address organizationAddress, string memory hash) public view returns (string memory) {
+        Certificate[] storage certificates = organizationCertificates[organizationAddress];
+        
+        for (uint i = 0; i < certificates.length; i++) {
+            if (keccak256(abi.encodePacked(certificates[i].hash)) == keccak256(abi.encodePacked(hash))) {
+                return "Certificate hash exists";
+            }
+        }
+        
+        return "Certificate hash does not exist";
+    }
 }

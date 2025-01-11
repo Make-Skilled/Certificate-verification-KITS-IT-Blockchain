@@ -265,11 +265,6 @@ def delete_certificate():
         print(f"Error in delete_certificate: {e}")
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
-@app.route('/verify_certificate/<address>')
-def verify(address):
-    session['organizaton_address']=address
-    return render_template('verify_doc.html')
-
 @app.route("/logout")
 def logout():
     session.clear()
@@ -311,7 +306,6 @@ def organization_requests():
         raise Exception("Failed to connect to blockchain.")
     
     requests=contract.functions.getOrganizationVerificationCertificates(address).call()
-    print(requests)
     return render_template("user_requests.html",requests_data=requests)
 
 @app.route("/send_request")
@@ -363,10 +357,17 @@ def send_orgrequest():
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
 
 
+@app.route('/verify_certificate/<address>')
+def verify(address):
+    print("address")
+    print(address)
+    session['organization_address']=address
+    return render_template('verify_doc.html')
+
 # Route to handle file upload and hash generation
 @app.route('/verify_certificate', methods=['POST'])
 def verify_certificate():
-    print("hello")
+    print(session['organization_address'])
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
 
@@ -389,10 +390,12 @@ def verify_certificate():
         
         try:
             response=contract.functions.checkHashExists(session['organization_address'],file_hash).call()
-            print(response)
+            if(response == "Certificate hash exists"):
+                return render_template("verify_doc.html",message="This certificate is authorized and verified")
+            else:
+                return render_template("verify_doc.html",message="This certificate is not authorized ")
         except Exception as e:
             return render_template('verify_doc.html',message=e)
-        return jsonify({"hash": file_hash})
 
     return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
 
@@ -415,5 +418,49 @@ def request_organization():
     # Return the data as a JSON response
     return jsonify(response_data)
 
+@app.route('/accept')
+def accept_certificate():
+    try:
+        # Get the certificate ID and organization address from the request
+        certificate_id = request.args.get('id')  # Ensure this is a string passed as query param
+        org_address = session['user']['address']
+
+        # Log the addresses and certificate ID for debugging
+        print(f"Organization Address: {org_address}")
+        print(f"Certificate ID: {certificate_id}")
+
+        # Validate if both the user address and certificate ID are provided
+        if not org_address or not certificate_id:
+            return jsonify({"error": "Missing user address or certificate ID"}), 400
+        
+        # Ensure the certificate_id is cast to the correct type
+        certificate_id = int(certificate_id)  # Convert to integer
+
+        # Connect to the blockchain and retrieve contract
+        contract, web3 = connect_with_blockchain(session['user']['address'])
+        
+        if not contract or not web3:
+            raise Exception("Failed to connect to blockchain.")
+        
+        # Log the contract object for debugging
+        print(f"Contract: {contract}")
+        
+        # Send the transaction to update the certificate status
+        tx_hash = contract.functions.updateCertificateStatus(org_address, certificate_id, "Verified").transact()
+        
+        # Wait for the transaction receipt to ensure it has been mined
+        receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+        
+        # Log receipt information for debugging
+        print(f"Transaction Receipt: {receipt}")
+        
+        # After success, render the template and pass the success message
+        return redirect("/organization_requests")
+    
+    except Exception as e:
+        # Log the error and return it in the response
+        print(f"Error: {str(e)}")
+        # Render the template with the error message
+        return render_template("user_requests.html", error=str(e))
 if __name__ == '__main__':
     app.run(debug=True, port=9001)

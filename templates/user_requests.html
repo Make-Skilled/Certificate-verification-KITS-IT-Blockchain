@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Requests</title>
     <style>
-      /* Reset default margin and padding */
       * {
         margin: 0;
         padding: 0;
@@ -13,311 +12,331 @@
       }
 
       body {
-        font-family: "Arial", sans-serif;
-        background-color: #f4f4f9;
-        color: #333;
-        padding-top: 60px; /* Space for navbar */
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background-color: #f3f4f6;
+        min-height: 100vh;
+      }
+
+      /* Enhanced Navbar Styles */
+      .navbar {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        background-color: #1f2937;
+        padding: 1rem;
+        z-index: 50;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-list {
         display: flex;
         justify-content: center;
-        align-items: flex-start;
-        height: 100%;
+        gap: 1.5rem;
+        list-style: none;
+        flex-wrap: wrap;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.25rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+      }
+
+      .nav-link:hover {
+        background-color: #f97316;
+        transform: translateY(-2px);
+      }
+
+      /* Enhanced Main Content Styles */
+      .container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 7rem 1.5rem 2rem;
+      }
+
+      .content-card {
+        background-color: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        transition: transform 0.3s ease;
+      }
+
+      .content-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        color: #111827;
+        border-bottom: 3px solid #f97316;
+        padding-bottom: 0.5rem;
+        display: inline-block;
+      }
+
+      .description {
+        color: #4b5563;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      }
+
+      /* Enhanced Filter Controls */
+      .filter-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .filter-label {
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .filter-select {
+        padding: 0.75rem 1rem;
+        border: 2px solid #d1d5db;
+        border-radius: 0.5rem;
+        outline: none;
+        font-size: 1rem;
+        min-width: 150px;
+        cursor: pointer;
+        background-color: white;
+        transition: all 0.3s ease;
+      }
+
+      .filter-select:focus {
+        border-color: #f97316;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+      }
+
+      /* Enhanced Table Styles */
+      .table-container {
+        overflow-x: auto;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .requests-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background-color: white;
+      }
+
+      .requests-table th {
+        background-color: #f97316;
+        color: white;
+        text-align: left;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+      }
+
+      .requests-table th:first-child {
+        border-top-left-radius: 0.5rem;
+      }
+
+      .requests-table th:last-child {
+        border-top-right-radius: 0.5rem;
+      }
+
+      .requests-table td {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+      }
+
+      .requests-table tr:hover td {
+        background-color: #f8f9fa;
+      }
+
+      /* Enhanced Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        background-color: #f97316;
+        color: white;
+        border: none;
+        padding: 0.6rem 1.2rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        min-width: 100px;
+        box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
+      }
+
+      .btn:hover {
+        background-color: #ea580c;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(249, 115, 22, 0.3);
+      }
+
+      form {
+        display: inline-block;
         margin: 0;
       }
 
-      /* Navbar styling */
-      nav {
-        width: 100%;
-        background-color: #333;
-        padding: 10px 0;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1000;
+      /* Status Styles */
+      .status-cell {
+        font-weight: 500;
       }
 
-      nav ul {
-        list-style: none;
-        display: flex;
-        justify-content: center;
+      .status-pending {
+        color: #d97706;
       }
 
-      nav ul li {
-        margin: 0 20px;
+      .status-verified {
+        color: #059669;
       }
 
-      nav ul li a {
-        color: white;
-        text-decoration: none;
-        font-size: 1.2rem;
-        padding: 10px 20px;
-        transition: background-color 0.3s ease-in-out;
-      }
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .nav-list {
+          gap: 0.75rem;
+        }
 
-      nav ul li a:hover {
-        background-color: #ff8000; /* Orange color on hover */
-        border-radius: 4px;
-      }
+        .action-buttons {
+          flex-direction: column;
+          align-items: stretch;
+        }
 
-      /* Container for the user requests page */
-      .container {
-        background-color: #fff;
-        padding: 30px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        border-radius: 8px;
-        width: 100%; /* Full width */
-        max-width: none; /* Disable max-width restriction */
-        margin-top: 20px;
-        overflow-x: auto; /* Allow horizontal scrolling if needed */
-      }
+        .btn {
+          width: 100%;
+        }
 
-      h1 {
-        font-size: 2.5rem;
-        color: black;
-        margin-bottom: 20px;
-      }
-
-      p {
-        font-size: 1.1rem;
-        margin-bottom: 20px;
-        color: #555;
-      }
-
-      table {
-        width: 100%; /* Table takes up the full width */
-        border-collapse: collapse;
-        margin-bottom: 20px;
-      }
-
-      th,
-      td {
-        padding: 12px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-      }
-
-      th {
-        background-color: #ff8000;
-        color: white;
-        font-size: 1.1rem;
-      }
-
-      td {
-        font-size: 1rem;
-      }
-
-      button {
-        background-color: orange;
-        color: #333;
-        border: 1px solid #ccc;
-        padding: 12px 20px;
-        font-size: 1.1rem;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: background-color 0.3s ease-in-out, transform 0.2s;
-        margin-top: 10px;
-      }
-
-      button:hover {
-        background-color: #f1f1f1;
-        transform: scale(1.05);
-      }
-
-      .options {
-        margin-top: 30px;
-      }
-
-      .options button {
-        margin-right: 15px;
-        background-color: #007bff;
-      }
-
-      .options button:hover {
-        background-color: #0056b3;
-      }
-
-      select {
-        padding: 10px;
-        border-radius: 4px;
-        border: 1px solid #ccc;
-        font-size: 1rem;
-      }
-
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        justify-content: center;
-        align-items: center;
-      }
-
-      .modal-content {
-        background-color: white;
-        padding: 30px;
-        border-radius: 8px;
-        width: 80%;
-        max-width: 600px;
-        text-align: left;
-      }
-
-      .modal button {
-        background-color: #28a745;
-        margin-top: 10px;
-        width: 100%;
-      }
-
-      .modal button:hover {
-        background-color: #218838;
-      }
-
-      .modal-header {
-        font-size: 1.5rem;
-        margin-bottom: 20px;
+        .container {
+          padding: 6rem 1rem 1rem;
+        }
       }
     </style>
   </head>
   <body>
-    <!-- Navbar -->
-    <nav>
-      <ul>
-        <li><a href="index.html">HOME</a></li>
-        <li><a href="index.html">SERVICES</a></li>
-        <li><a href="index.html">PRICING</a></li>
-        <li><a href="index.html">TEAM</a></li>
-        <li><a href="index.html">RATING</a></li>
-        <li><a href="index.html">CONTACT US</a></li>
-        <li><a href="logout.html">LOGOUT</a></li>
-        <li><a href="signup.html">SIGNUP</a></li>
+    <nav class="navbar">
+      <ul class="nav-list">
+        <li><a href="#" class="nav-link">HOME</a></li>
+        <li><a href="#" class="nav-link">SERVICES</a></li>
+        <li><a href="#" class="nav-link">PRICING</a></li>
+        <li><a href="#" class="nav-link">TEAM</a></li>
+        <li><a href="#" class="nav-link">RATING</a></li>
+        <li><a href="#" class="nav-link">CONTACT US</a></li>
+        <li><a href="#" class="nav-link">LOGOUT</a></li>
+        <li><a href="#" class="nav-link">SIGNUP</a></li>
       </ul>
     </nav>
 
     <div class="container">
-      <h1>User Requests</h1>
-      <p>
-        View and handle requests submitted by users for certificate
-        verification. Below is the list of current requests.
-      </p>
+      <div class="content-card">
+        <h1 class="title">User Requests</h1>
+        <p class="description">
+          View and handle requests submitted by users for certificate
+          verification. Below is the list of current requests.
+        </p>
 
-      <!-- Filter by Status -->
-      <div class="options">
-        <label for="statusFilter">Filter by Status:</label>
-        <select id="statusFilter" onchange="filterRequests()">
-          <option value="all">All Requests</option>
-          <option value="pending">Pending</option>
-          <option value="verified">Verified</option>
-        </select>
-      </div>
+        <div class="filter-controls">
+          <label for="statusFilter" class="filter-label">Filter by Status:</label>
+          <select id="statusFilter" class="filter-select">
+            <option value="all">All Requests</option>
+            <option value="pending">Pending</option>
+            <option value="verified">Verified</option>
+          </select>
+        </div>
 
-      <!-- Requests Table -->
-      <table id="requestsTable">
-        <thead>
-          <tr>
-            <th>S.No</th>
-            <th>Username</th>
-            <th>Organization Name</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Loop through requests_data and populate rows dynamically -->
-          {% if requests_data %}
-            {% for request in requests_data %}
-              <tr class="{{ request[6]|lower }}">
-                <td>{{ loop.index }}</td> <!-- Auto-increment S.No -->
-                <td>{{ request[3] }}</td>
+        <div class="table-container">
+          <table id="requestsTable" class="requests-table">
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Username</th>
+                <th>Organization Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if requests_data %} 
+              {% for request in requests_data %}
+              <tr class="request-row" data-status="{{ request[7]|lower }}">
+                <td>{{ loop.index }}</td>
                 <td>{{ request[4] }}</td>
-                <td>{{ request[6] }}</td>
+                <td>{{ request[5] }}</td>
+                <td class="status-cell status-{{ request[7]|lower }}">{{ request[7] }}</td>
                 <td>
-                  <a href="{{ request[5] }}" target="_blank" download><button>Download</button></a>
-                  {% if request[6] == 'pending' %}
-                    <a href="/verify_certificate/{{request[0]}}"><button >Verify</button></a>
-                  {% endif %}
-                  <a href="/accept" target="_blank"><button>Accept</button></a>
-                  <form id="requestForm" action="/request_organization" method="POST">
-                    <input type="hidden" name="path" value="{{ request[5] }}" style="display:none">
-                    <input type="hidden" name="username" value="{{ request[3] }}" style="display:none">
-                    <input type="hidden" name="user" value="{{ request[2] }}" style="display:none">
-                    <input type="hidden" name="organization" value="{{ request[0] }}" style="display:none">
-                    <button type="submit">Request Organization</button>
-                </form>
-
+                  <div class="action-buttons">
+                    <a href="{{ request[6] }}" download class="btn">Download</a>
+                    {% if request[7] == 'pending' %}
+                    <a href="/verify_certificate/{{request[1]}}" class="btn">Verify</a>
+                    <a href="/accept?id={{request[0]}}" class="btn">Accept</a>
+                    <form id="requestForm" action="/request_organization" method="POST">
+                      <input type="hidden" name="path" value="{{ request[6] }}" />
+                      <input type="hidden" name="username" value="{{ request[4] }}" />
+                      <input type="hidden" name="user" value="{{ request[2] }}" />
+                      <input type="hidden" name="organization" value="{{ request[1] }}" />
+                      <button type="submit" class="btn">Request Organization</button>
+                    </form>
+                    {% endif %}
+                  </div>
                 </td>
               </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="5">No requests found</td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
-      
-    </div>
-
-    <!-- Modal for viewing request details -->
-    <div id="viewModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Request Details</h2>
+              {% endfor %} 
+              {% else %}
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem;">No requests found</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
         </div>
-        <p id="requestDetails">
-          Details of the request will be displayed here...
-        </p>
-        <button onclick="closeModal()">Close</button>
       </div>
     </div>
 
     <script>
-      function filterRequests() {
-        var filter = document.getElementById("statusFilter").value;
-        var rows = document.querySelectorAll("#requestsTable tbody tr");
+      // Enhanced Filter functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const statusFilter = document.getElementById('statusFilter');
+        const requestRows = document.querySelectorAll('.request-row');
 
-        rows.forEach(function (row) {
-          if (filter === "all") {
-            row.style.display = "";
-          } else if (row.classList.contains(filter)) {
-            row.style.display = "";
-          } else {
-            row.style.display = "none";
-          }
-        });
-      }
-
-      function viewRequest(requestID) {
-        var details = `Details of Request ID: ${requestID}`;
-        document.getElementById("requestDetails").innerText = details;
-
-        var modal = document.getElementById("viewModal");
-        modal.style.display = "flex"; // Show the modal
-      }
-
-      function closeModal() {
-        var modal = document.getElementById("viewModal");
-        modal.style.display = "none"; // Close the modal
-      }
-
-      function verifyRequest(requestID) {
-        var row = document.querySelector(
-          `tr td:first-child:contains(${requestID})`
-        ).parentElement;
-        var statusCell = row.cells[3];
-
-        if (statusCell.innerText === "Pending") {
-          // Change the row to 'Verified' when the request is verified
-          row.classList.remove("pending");
-          row.classList.add("verified");
-          statusCell.innerText = "Verified"; // Update the status to Verified
-          var actionCell = row.cells[4];
-          actionCell.innerHTML =
-            '<button onclick="viewRequest(' +
-            requestID +
-            ')">View</button><button disabled>Verified</button>'; // Disable the button
+        function filterTable() {
+          const selectedStatus = statusFilter.value.toLowerCase();
+          
+          requestRows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            if (selectedStatus === 'all' || selectedStatus === rowStatus) {
+              row.style.display = '';
+            } else {
+              row.style.display = 'none';
+            }
+          });
         }
-      }
+
+        // Initial filter
+        filterTable();
+
+        // Filter on change
+        statusFilter.addEventListener('change', filterTable);
+      });
     </script>
   </body>
 </html>
