@@ -290,9 +290,7 @@
                     <a href="/verify_certificate/{{request[1]}}" class="btn">Verify</a>
                     <a href="/accept?id={{request[0]}}" class="btn">Accept</a>
                     <form id="requestForm" action="/request_organization" method="POST">
-                      <input type="hidden" name="path" value="{{ request[6] }}" />
-                      <input type="hidden" name="username" value="{{ request[4] }}" />
-                      <input type="hidden" name="user" value="{{ request[2] }}" />
+                      <input type="hidden" name="id" value="{{ request[0] }}" />
                       <input type="hidden" name="organization" value="{{ request[1] }}" />
                       <button type="submit" class="btn">Request Organization</button>
                     </form>

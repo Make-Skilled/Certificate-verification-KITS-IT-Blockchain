@@ -399,25 +399,6 @@ def verify_certificate():
 
     return jsonify({"error": "Invalid file type. Only PDF files are allowed."}), 400
 
-@app.route('/request_organization', methods=['POST'])
-def request_organization():
-    # Capture form data
-    path = request.form.get('path')
-    username = request.form.get('username')
-    user = request.form.get('user')
-    organization = request.form.get('organization')
-
-    # Render the data in an HTML response
-    response_data = {
-        'path': path,
-        'username': username,
-        'user': user,
-        'organization': organization
-    }
-
-    # Return the data as a JSON response
-    return jsonify(response_data)
-
 @app.route('/accept')
 def accept_certificate():
     try:
@@ -462,5 +443,27 @@ def accept_certificate():
         print(f"Error: {str(e)}")
         # Render the template with the error message
         return render_template("user_requests.html", error=str(e))
+   
+@app.route('/request_organization', methods=['POST'])
+def request_organization():
+    # Capture form data
+    id = request.form.get('id')
+    organization = request.form.get('organization')
+    print(id,organization)
+    
+    # Connect to the blockchain and retrieve contract
+    contract, web3 = connect_with_blockchain(session['user']['address'])
+        
+    if not contract or not web3:
+        raise Exception("Failed to connect to blockchain.")
+    
+    try:
+        tx_hash=contract.functions.addOrganizationRequest(int(id),organization,session['user']['address']).transact()
+        web3.eth.wait_for_transaction_receipt(tx_hash)
+        return "hello"
+    except Exception as e:
+        return str(e)
+
+      
 if __name__ == '__main__':
     app.run(debug=True, port=9001)
