@@ -96,6 +96,7 @@
         padding: 1rem;
         border-radius: 0.5rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        flex-wrap: wrap;
       }
 
       .filter-label {
@@ -194,11 +195,6 @@
         box-shadow: 0 4px 6px rgba(249, 115, 22, 0.3);
       }
 
-      form {
-        display: inline-block;
-        margin: 0;
-      }
-
       /* Status Styles */
       .status-cell {
         font-weight: 500;
@@ -208,8 +204,53 @@
         color: #d97706;
       }
 
+      .status-rejected {
+        color:rgb(255, 65, 48);
+      }
+
       .status-verified {
         color: #059669;
+      }
+
+      /* Animation Styles */
+      .request-row {
+        opacity: 1;
+        transform: translateX(0);
+        transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+      }
+
+      .request-row.hidden {
+        opacity: 0;
+        transform: translateX(-20px);
+        display: none;
+      }
+
+      .request-row.visible {
+        animation: slideIn 0.3s ease forwards;
+      }
+
+      .filter-count {
+        background-color: #f97316;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        margin-left: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
       /* Responsive Design */
@@ -229,6 +270,17 @@
 
         .container {
           padding: 6rem 1rem 1rem;
+        }
+
+        .filter-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-count {
+          align-self: flex-start;
+          margin-left: 0;
+          margin-top: 0.5rem;
         }
       }
     </style>
@@ -286,12 +338,8 @@
                   <div class="action-buttons">
                     <a href="{{ request[6] }}" download class="btn">Download</a>
                     {% if request[7] == 'pending' %}
-                    <a href="/verify_certificate/{{request[1]}}" class="btn">Verify</a>
-                    <a href="/accept?id={{request[0]}}" class="btn">Accept</a>
-                    <form id="requestForm" action="/request_organization" method="POST">
-                      <input type="hidden" name="id" value="{{ request[0] }}" />
-                      <button type="submit" class="btn">Request Organization</button>
-                    </form>
+                    <a href="/org_accept?id={{request[0]}}" class="btn">Accept</a>
+                    <a href="/reject?id={{request[0]}}" class="btn">Reject</a>
                     {% endif %}
                   </div>
                 </td>
@@ -309,29 +357,112 @@
     </div>
 
     <script>
-      // Enhanced Filter functionality
       document.addEventListener('DOMContentLoaded', function() {
         const statusFilter = document.getElementById('statusFilter');
-        const requestRows = document.querySelectorAll('.request-row');
-
-        function filterTable() {
-          const selectedStatus = statusFilter.value.toLowerCase();
+        const requestsTable = document.getElementById('requestsTable');
+        const rows = requestsTable.getElementsByClassName('request-row');
+        
+        // Create and add filter count element
+        const filterCountSpan = document.createElement('span');
+        filterCountSpan.className = 'filter-count';
+        statusFilter.parentNode.appendChild(filterCountSpan);
+        
+        function updateFilterCount(visibleCount, totalCount) {
+          filterCountSpan.textContent = `${visibleCount} of ${totalCount}`;
+        }
+        
+        function filterTable(selectedStatus) {
+          let visibleCount = 0;
+          const totalCount = rows.length;
           
-          requestRows.forEach(row => {
+          Array.from(rows).forEach(row => {
             const rowStatus = row.getAttribute('data-status');
-            if (selectedStatus === 'all' || selectedStatus === rowStatus) {
+            
+            // Remove existing classes
+            row.classList.remove('hidden', 'visible');
+            
+            if (selectedStatus === 'all' || rowStatus === selectedStatus) {
+              // Show row with animation
               row.style.display = '';
+              setTimeout(() => {
+                row.classList.add('visible');
+              }, 0);
+              visibleCount++;
             } else {
-              row.style.display = 'none';
+              // Hide row with animation
+              row.classList.add('hidden');
+              // Actually hide the element after animation completes
+              setTimeout(() => {
+                if (row.classList.contains('hidden')) {
+                  row.style.display = 'none';
+                }
+              }, 300);
             }
           });
+          
+          updateFilterCount(visibleCount, totalCount);
+          
+          // Save filter preference
+          localStorage.setItem('requestsTableFilter', selectedStatus);
         }
-
-        // Initial filter
-        filterTable();
-
-        // Filter on change
-        statusFilter.addEventListener('change', filterTable);
+        
+        // Add event listener for filter changes
+        statusFilter.addEventListener('change', function() {
+          filterTable(this.value.toLowerCase());
+        });
+        
+        // Initialize table with saved filter or default to 'all'
+        const savedFilter = localStorage.getItem('requestsTableFilter') || 'all';
+        statusFilter.value = savedFilter;
+        filterTable(savedFilter);
+        
+        // Add search functionality
+        const searchBox = document.createElement('input');
+        searchBox.type = 'text';
+        searchBox.placeholder = 'Search by username or organization...';
+        searchBox.className = 'filter-select';
+        searchBox.style.marginLeft = 'auto';
+        document.querySelector('.filter-controls').appendChild(searchBox);
+        
+        let searchTimeout;
+        searchBox.addEventListener('input', function() {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => {
+            const searchTerm = this.value.toLowerCase();
+            const selectedStatus = statusFilter.value.toLowerCase();
+            
+            let visibleCount = 0;
+            const totalCount = rows.length;
+            
+            Array.from(rows).forEach(row => {
+              const rowStatus = row.getAttribute('data-status');
+              const username = row.children[1].textContent.toLowerCase();
+              const organization = row.children[2].textContent.toLowerCase();
+              
+              const matchesSearch = !searchTerm || 
+                username.includes(searchTerm) || 
+                organization.includes(searchTerm);
+              const matchesFilter = selectedStatus === 'all' || 
+                rowStatus === selectedStatus;
+              
+              if (matchesSearch && matchesFilter) {
+                row.style.display = '';
+                row.classList.remove('hidden');
+                row.classList.add('visible');
+                visibleCount++;
+              } else {
+                row.classList.add('hidden');
+                setTimeout(() => {
+                  if (row.classList.contains('hidden')) {
+                    row.style.display = 'none';
+                  }
+                }, 300);
+              }
+            });
+            
+            updateFilterCount(visibleCount, totalCount);
+          }, 300);
+        });
       });
     </script>
   </body>

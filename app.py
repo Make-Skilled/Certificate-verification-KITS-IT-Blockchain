@@ -351,7 +351,7 @@ def send_orgrequest():
             return render_template('send_request.html', message=blockchain_error), 500
 
         # Return success message
-        return render_template('upload-certificate.html', message='Certificate uploaded and recorded successfully'), 200
+        return render_template('send_request.html', message='Certificate uploaded and recorded successfully'), 200
     except Exception as e:
         print(f"Error during upload: {e}")
         return jsonify({'error': f'An error occurred: {str(e)}'}), 500
@@ -427,7 +427,7 @@ def accept_certificate():
         print(f"Contract: {contract}")
         
         # Send the transaction to update the certificate status
-        tx_hash = contract.functions.updateCertificateStatus(org_address, certificate_id, "Verified").transact()
+        tx_hash = contract.functions.updateCertificateStatus(certificate_id, "Verified").transact()
         
         # Wait for the transaction receipt to ensure it has been mined
         receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
@@ -444,12 +444,101 @@ def accept_certificate():
         # Render the template with the error message
         return render_template("user_requests.html", error=str(e))
    
+@app.route('/org_accept')
+def org_accept_certificate():
+    try:
+        # Get the certificate ID and organization address from the request
+        certificate_id = request.args.get('id')  # Ensure this is a string passed as query param
+        org_address = session['user']['address']
+
+        # Log the addresses and certificate ID for debugging
+        print(f"Organization Address: {org_address}")
+        print(f"Certificate ID: {certificate_id}")
+
+        # Validate if both the user address and certificate ID are provided
+        if not org_address or not certificate_id:
+            return jsonify({"error": "Missing user address or certificate ID"}), 400
+        
+        # Ensure the certificate_id is cast to the correct type
+        certificate_id = int(certificate_id)  # Convert to integer
+
+        # Connect to the blockchain and retrieve contract
+        contract, web3 = connect_with_blockchain(session['user']['address'])
+        
+        if not contract or not web3:
+            raise Exception("Failed to connect to blockchain.")
+        
+        # Log the contract object for debugging
+        print(f"Contract: {contract}")
+        
+        # Send the transaction to update the certificate status
+        tx_hash = contract.functions.updateCertificateStatus( certificate_id, "Verified").transact()
+        
+        # Wait for the transaction receipt to ensure it has been mined
+        receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+        
+        # Log receipt information for debugging
+        print(f"Transaction Receipt: {receipt}")
+        
+        # After success, render the template and pass the success message
+        return redirect("/org_requests")
+    
+    except Exception as e:
+        # Log the error and return it in the response
+        print(f"Error: {str(e)}")
+        # Render the template with the error message
+        return render_template("user_requests.html", error=str(e))
+  
+@app.route('/reject')
+def org_reject_certificate():
+    try:
+        # Get the certificate ID and organization address from the request
+        certificate_id = request.args.get('id')  # Ensure this is a string passed as query param
+        org_address = session['user']['address']
+
+        # Log the addresses and certificate ID for debugging
+        print(f"Organization Address: {org_address}")
+        print(f"Certificate ID: {certificate_id}")
+
+        # Validate if both the user address and certificate ID are provided
+        if not org_address or not certificate_id:
+            return jsonify({"error": "Missing user address or certificate ID"}), 400
+        
+        # Ensure the certificate_id is cast to the correct type
+        certificate_id = int(certificate_id)  # Convert to integer
+
+        # Connect to the blockchain and retrieve contract
+        contract, web3 = connect_with_blockchain(session['user']['address'])
+        
+        if not contract or not web3:
+            raise Exception("Failed to connect to blockchain.")
+        
+        # Log the contract object for debugging
+        print(f"Contract: {contract}")
+        
+        # Send the transaction to update the certificate status
+        tx_hash = contract.functions.updateCertificateStatus( certificate_id, "Rejected").transact()
+        
+        # Wait for the transaction receipt to ensure it has been mined
+        receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+        
+        # Log receipt information for debugging
+        print(f"Transaction Receipt: {receipt}")
+        
+        # After success, render the template and pass the success message
+        return redirect("/org_requests")
+    
+    except Exception as e:
+        # Log the error and return it in the response
+        print(f"Error: {str(e)}")
+        # Render the template with the error message
+        return render_template("user_requests.html", error=str(e))
+  
+
 @app.route('/request_organization', methods=['POST'])
 def request_organization():
     # Capture form data
     id = request.form.get('id')
-    organization = request.form.get('organization')
-    print(id,organization)
     
     # Connect to the blockchain and retrieve contract
     contract, web3 = connect_with_blockchain(session['user']['address'])
@@ -458,12 +547,26 @@ def request_organization():
         raise Exception("Failed to connect to blockchain.")
     
     try:
-        tx_hash=contract.functions.addOrganizationRequest(int(id),organization,session['user']['address']).transact()
+        tx_hash=contract.functions.changeRequestSentStatus(int(id), True).transact()
         web3.eth.wait_for_transaction_receipt(tx_hash)
-        return "hello"
+        return redirect("/organization_requests")
     except Exception as e:
         return str(e)
 
+@app.route("/org_requests")
+def track_certificate():
+    contract, web3 = connect_with_blockchain(session['user']['address']) 
+    if not contract or not web3:
+        raise Exception("Failed to connect to blockchain.")
+    
+    try:
+        requests=contract.functions.getAllRequestSentTrue().call()
+        print(requests)
+        return render_template("organization_requests.html",requests_data=requests)
+    except Exception as e:
+        return str(e)
+    
+    
       
 if __name__ == '__main__':
     app.run(debug=True, port=9001)
