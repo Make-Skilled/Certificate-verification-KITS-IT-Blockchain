@@ -321,4 +321,43 @@ contract Certi {
         }
         return "Certificate hash does not exist";
     }
+
+    // Function to get all certificates of a user
+function getUserCertificates(address _user) public view returns (Certificate[] memory) {
+    return userCertificates[_user];
+}
+
+struct Feedback{
+    address _user;
+    string _feedback;
+    string _satisfaction;
+    string _email;
+}
+
+// Mapping to store feedbacks from users
+mapping(address => Feedback[]) private userFeedbacks;
+
+// Function to add feedback
+function addFeedback(
+    address _user,
+    string memory _feedback,
+    string memory _satisfaction,
+    string memory _email
+) public {
+    Feedback memory newFeedback = Feedback({
+        user: _user,
+        feedback: _feedback,
+        satisfaction: _satisfaction,
+        email: _email
+    });
+
+    userFeedbacks[_user].push(newFeedback);
+}
+
+// Function to get all feedbacks of a user
+function getAllFeedbacks(address _user) public view returns (Feedback[] memory) {
+    return userFeedbacks[_user];
+}
+
+
 }

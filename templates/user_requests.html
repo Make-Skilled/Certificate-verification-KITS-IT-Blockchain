@@ -234,105 +234,59 @@
     </style>
   </head>
   <body>
-    <nav class="navbar">
-      <ul class="nav-list">
-        <li><a href="#" class="nav-link">HOME</a></li>
-        <li><a href="#" class="nav-link">SERVICES</a></li>
-        <li><a href="#" class="nav-link">PRICING</a></li>
-        <li><a href="#" class="nav-link">TEAM</a></li>
-        <li><a href="#" class="nav-link">RATING</a></li>
-        <li><a href="#" class="nav-link">CONTACT US</a></li>
-        <li><a href="/logout" class="nav-link">LOGOUT</a></li>
-      </ul>
+    <nav>
+        <ul>
+            <li><a href="#">HOME</a></li>
+            <li><a href="#">SERVICES</a></li>
+            <li><a href="#">PRICING</a></li>
+            <li><a href="#">TEAM</a></li>
+            <li><a href="#">RATING</a></li>
+            <li><a href="#">CONTACT US</a></li>
+            <li><a href="#">LOGOUT</a></li>
+        </ul>
     </nav>
 
-    <div class="container">
-      <div class="content-card">
-        <h1 class="title">User Requests</h1>
-        <p class="description">
-          View and handle requests submitted by users for certificate
-          verification. Below is the list of current requests.
-        </p>
-
-        <div class="filter-controls">
-          <label for="statusFilter" class="filter-label">Filter by Status:</label>
-          <select id="statusFilter" class="filter-select">
-            <option value="all">All Requests</option>
-            <option value="pending">Pending</option>
-            <option value="verified">Verified</option>
-          </select>
+    <main>
+        <h2>User Feedback</h2>
+        
+        <div class="filter-section">
+            <h3>Filter by Status:</h3>
+            <form method="GET" action="">
+                <select name="status">
+                    <option value="all">All Requests</option>
+                    <option value="pending">Pending</option>
+                    <option value="verified">Verified</option>
+                </select>
+                <button type="submit">Filter</button>
+            </form>
         </div>
 
-        <div class="table-container">
-          <table id="requestsTable" class="requests-table">
-            <thead>
-              <tr>
-                <th>S.No</th>
-                <th>Username</th>
-                <th>Organization Name</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% if requests_data %} 
-              {% for request in requests_data %}
-              <tr class="request-row" data-status="{{ request[7]|lower }}">
-                <td>{{ loop.index }}</td>
-                <td>{{ request[4] }}</td>
-                <td>{{ request[5] }}</td>
-                <td class="status-cell status-{{ request[7]|lower }}">{{ request[7] }}</td>
-                <td>
-                  <div class="action-buttons">
-                    <a href="{{ request[6] }}" download class="btn">Download</a>
-                    {% if request[7] == 'pending' %}
-                    <a href="/verify_certificate/{{request[1]}}" class="btn">Verify</a>
-                    <a href="/accept?id={{request[0]}}" class="btn">Accept</a>
-                    <form id="requestForm" action="/request_organization" method="POST">
-                      <input type="hidden" name="id" value="{{ request[0] }}" />
-                      <button type="submit" class="btn">Request Organization</button>
-                    </form>
-                    {% endif %}
-                  </div>
-                </td>
-              </tr>
-              {% endfor %} 
-              {% else %}
-              <tr>
-                <td colspan="5" style="text-align: center; padding: 2rem;">No requests found</td>
-              </tr>
-              {% endif %}
-            </tbody>
-          </table>
+        <div class="feedback-list">
+            {% if feedback_data %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Feedback</th>
+                        <th>Satisfaction</th>
+                        <th>Given by</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ feedback[1] }}</td>  <!-- feedback -->
+                        <td>{{ feedback[2] }}</td>  <!-- satisfaction -->
+                        <td>{{ feedback[3] }}</td>  <!-- email -->
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No feedback found</p>
+            {% endif %}
         </div>
-      </div>
-    </div>
-
-    <script>
-      // Enhanced Filter functionality
-      document.addEventListener('DOMContentLoaded', function() {
-        const statusFilter = document.getElementById('statusFilter');
-        const requestRows = document.querySelectorAll('.request-row');
-
-        function filterTable() {
-          const selectedStatus = statusFilter.value.toLowerCase();
-          
-          requestRows.forEach(row => {
-            const rowStatus = row.getAttribute('data-status');
-            if (selectedStatus === 'all' || selectedStatus === rowStatus) {
-              row.style.display = '';
-            } else {
-              row.style.display = 'none';
-            }
-          });
-        }
-
-        // Initial filter
-        filterTable();
-
-        // Filter on change
-        statusFilter.addEventListener('change', filterTable);
-      });
-    </script>
-  </body>
+    </main>
+</body>
 </html>

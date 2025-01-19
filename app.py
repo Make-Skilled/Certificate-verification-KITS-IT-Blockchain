@@ -566,7 +566,39 @@ def track_certificate():
     except Exception as e:
         return str(e)
     
+@app.route("/feedback")
+def feedback():
+    return render_template("feedback-form.html")
     
+@app.route("/submit-feedback")
+def submit_feedback():
+    feedback=request.form.get("feedback")
+    service=request.form.get("service")
+    email=session['user']['email']
+    address=session['user']['address']
+    
+    contract, web3 = connect_with_blockchain(session['user']['address']) 
+    if not contract or not web3:
+        raise Exception("Failed to connect to blockchain.")
+    
+    try:
+        tx_hash=contract.funtions.addFeedback(address,feedback,service,email).transact()
+        web3.eth.wait_for_transaction_receipt(tx_hash)
+        return render_template("feedback-form.html",message="Feedback submitted successfully")
+    except:
+        return render_template("feedback-form.html",message="Failed adding feedback")
+    
+@app.route("/feedbacks")
+def feedbacks():
+    contract, web3 = connect_with_blockchain(session['user']['address']) 
+    if not contract or not web3:
+        raise Exception("Failed to connect to blockchain.")
+    try:
+        feedbacks=contract.functions.getAllFeedbacks().call()
+        return render_template("feedbacks.html",feedbacks=feedbacks)
+    except:
+        return render_template("feesbacks.html",message="Failed retriving feedbacks")
+        
       
 if __name__ == '__main__':
     app.run(debug=True, port=9001)
