@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Feedback Dashboard</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#">HOME</a></li>
+            <li><a href="#">SERVICES</a></li>
+            <li><a href="#">PRICING</a></li>
+            <li><a href="#">TEAM</a></li>
+            <li><a href="#">RATING</a></li>
+            <li><a href="#">CONTACT US</a></li>
+            <li><a href="#">LOGOUT</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <h2>User Feedback</h2>
+        
+        <div class="filter-section">
+            <h3>Filter by Status:</h3>
+            <form method="GET" action="">
+                <select name="status">
+                    <option value="all">All Requests</option>
+                    <option value="pending">Pending</option>
+                    <option value="verified">Verified</option>
+                </select>
+                <button type="submit">Filter</button>
+            </form>
+        </div>
+
+        <div class="feedback-list">
+            {% if feedback_data %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>S.No</th>
+                        <th>Address</th>
+                        <th>Feedback</th>
+                        <th>Satisfaction</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feedback in feedback_data %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ feedback[0] }}</td>  <!-- address_user -->
+                        <td>{{ feedback[1] }}</td>  <!-- feedback -->
+                        <td>{{ feedback[2] }}</td>  <!-- satisfaction -->
+                        <td>{{ feedback[3] }}</td>  <!-- email -->
+                        <td>
+                            <a href="{{ url_for('download_feedback', id=loop.index) }}" class="button">Download</a>
+                            {% if feedback[2] == 'pending' %}
+                            <a href="{{ url_for('verify_feedback', id=loop.index) }}" class="button">Verify</a>
+                            <a href="{{ url_for('accept_feedback', id=loop.index) }}" class="button">Accept</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p>No feedback found</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
