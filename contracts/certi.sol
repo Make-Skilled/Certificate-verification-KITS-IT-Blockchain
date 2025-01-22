@@ -345,10 +345,10 @@ function addFeedback(
     string memory _email
 ) public {
     Feedback memory newFeedback = Feedback({
-        user: _user,
-        feedback: _feedback,
-        satisfaction: _satisfaction,
-        email: _email
+        _user: _user,
+        _feedback: _feedback,
+        _satisfaction: _satisfaction,
+        _email: _email
     });
 
     userFeedbacks[_user].push(newFeedback);
