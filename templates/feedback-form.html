@@ -196,7 +196,8 @@
   <!-- Feedback Form -->
   <div class="container">
     <h1>Provide Feedback</h1>
-    <form>
+    <center><p>{{message}}</p></center>
+    <form action="/submit_feedback" method="post">
       <!-- Feedback Textarea -->
       <label for="feedback">Your Feedback:</label>
       <textarea id="feedback" name="feedback" rows="4" required></textarea><br>

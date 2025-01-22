@@ -570,7 +570,7 @@ def track_certificate():
 def feedback():
     return render_template("feedback-form.html")
     
-@app.route("/submit-feedback")
+@app.route("/submit_feedback",methods=['post'])
 def submit_feedback():
     feedback=request.form.get("feedback")
     service=request.form.get("service")
@@ -582,10 +582,12 @@ def submit_feedback():
         raise Exception("Failed to connect to blockchain.")
     
     try:
-        tx_hash=contract.funtions.addFeedback(address,feedback,service,email).transact()
+        tx_hash=contract.functions.addFeedback(address,feedback,service,email).transact()
         web3.eth.wait_for_transaction_receipt(tx_hash)
         return render_template("feedback-form.html",message="Feedback submitted successfully")
-    except:
+    except Exception as e:
+        print(e)
+        print("hello")
         return render_template("feedback-form.html",message="Failed adding feedback")
     
 @app.route("/feedbacks")
